@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartalock Interactive Troubleshooting Wizard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    --ink: #1D1D1F;
+    --ink-soft: #6E6E73;
+    --header-grey: #48484A;
+    --paper: #FFFFFF;
+    --paper-soft: #F5F5F7;
+    --line: #D2D2D7;
+    --accent: #0071E3;
+    --accent-wash: #E8F1FC;
+    --accent-deep: #0058B0;
+    --danger: #FF3B30;
+    --danger-wash: #FFF1F0;
+    --danger-line: #FFC6C2;
+    --danger-deep: #C22A20;
+    --warning: #D98E00;
+    --warning-wash: #FFF7E8;
+    --warning-line: #F4DDA6;
+    --warning-deep: #93650A;
+    --success: #1E6B3A;
+    --success-wash: #F0F9F1;
+    --success-line: #B7E1BD;
+    --violet: #7C3AED;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 24px 48px -24px rgba(0,0,0,0.14);
+    --panel-maxw: 860px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-main { min-height: 100vh; display: flex; flex-direction: column; }
+  .panel-inner { max-width: var(--panel-maxw); margin: 0 auto; width: 100%; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .top-frame {
+    position: sticky; top: 0; z-index: 50; background: var(--paper);
+    padding: 16px 0; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo { height: 20px; width: auto; display: block; flex-shrink: 0; }
+  .brand-tagline {
+    color: var(--ink-soft); font-family: var(--font-text); font-weight: 500; font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase; padding-left: 12px; border-left: 1px solid var(--line);
+  }
+  .top-frame-heading { display: block; margin-top: 32px; text-align: left; }
+  .top-frame-heading h1.hero-title { font-size: clamp(37.5px, 5.25vw, 50.6px); margin: 0; }
+  .top-frame-heading h1.hero-title:not(:only-child) { margin: 0 0 8px; }
+  .top-frame-heading p.sub { display: none; font-size: 19.5px; line-height: 1.5; color: var(--ink-soft); margin: 0; max-width: none; }
+  .top-frame-heading p.sub:not(:empty) { display: block; }
+
+  /* ---------- intro / hero ---------- */
+  .panel-scroll { flex: 1; padding: 32px 0 48px; }
+  h1.hero-title {
+    font-family: var(--font-display); font-weight: 200; letter-spacing: -0.5px; line-height: 1.12;
+    color: #102A43; margin: 0 0 14px;
+  }
+
+  .crumb-link {
+    display: inline-flex; align-items: center; gap: 6px; color: var(--accent-deep); text-decoration: none;
+    font-weight: 600; font-size: 13px; margin-bottom: 18px;
+  }
+  .crumb-link:hover { text-decoration: underline; }
+
+  /* ---------- issue picker cards ---------- */
+  .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 8px; }
+  @media (max-width: 560px) { .decision-grid { grid-template-columns: 1fr; } }
+
+  .dcard {
+    background: #F1F1F1; border: none; border-radius: var(--radius-lg);
+    padding: 20px 22px 22px; position: relative;
+    transition: transform .25s, background-color .25s, outline .25s;
+    display: flex; flex-direction: column; cursor: pointer; text-align: left;
+    font-family: var(--font-text); outline: 0 solid transparent;
+  }
+  .dcard:hover { transform: translate(-3px, -3px); background: #fff; outline: 1.5px solid #000; }
+  .dcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .dcard h3 { font-family: var(--font-display); font-weight: 500; font-size: 16.5px; margin: 0; color: var(--header-grey); line-height: 1.35; }
+  .dcard .dcard-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+  .dcard .dcard-icon {
+    width: 46px; height: 46px; border-radius: 13px; overflow: hidden; flex-shrink: 0;
+    background: #fff; border: 1px solid var(--line);
+  }
+  .dcard .dcard-icon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .dcard .dcard-icon.dcard-icon-glyph { display: flex; align-items: center; justify-content: center; }
+  .dcard .dcard-icon.dcard-icon-glyph svg { width: 25px; height: 25px; stroke: var(--header-grey); }
+
+  .badge-pill {
+    font-size: 8.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px;
+    border-radius: 100px; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: #fff;
+  }
+  .badge-pill.badge-blue { color: var(--accent); border: 1.5px solid var(--accent); }
+  .badge-pill.badge-amber { color: var(--warning); border: 1.5px solid var(--warning); }
+  .badge-pill.badge-violet { color: var(--violet); border: 1.5px solid var(--violet); }
+
+  /* ---------- issue image preview / slideshow ---------- */
+  .preview-panel {
+    margin-top: 22px; border-radius: var(--radius-lg);
+    background: var(--paper-soft); padding: 20px; cursor: pointer;
+    transition: box-shadow .2s;
+  }
+  .preview-panel:hover, .preview-panel:focus-visible { box-shadow: 0 4px 18px rgba(0,113,227,0.14); outline: none; }
+  .preview-frame {
+    max-width: 480px; min-height: 170px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden;
+    background: #fff; display: flex; align-items: center; justify-content: center;
+  }
+  .preview-frame img { display: block; width: 100%; height: auto; opacity: 1; transition: opacity .2s ease; }
+  .preview-frame img.fading { opacity: 0; }
+  .preview-panel.empty .preview-frame img { display: none; }
+  .preview-empty {
+    display: none; padding: 46px 28px; text-align: center; width: 100%;
+    font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.3; color: var(--header-grey);
+  }
+  .preview-panel.empty .preview-empty { display: block; }
+  .preview-caption { text-align: center; margin-top: 14px; font-size: 13.5px; font-weight: 600; color: var(--header-grey); min-height: 18px; }
+  .preview-panel.empty .preview-caption { color: var(--ink-soft); font-weight: 400; }
+  .preview-hint { text-align: center; font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- callouts ---------- */
+  .callout { border-radius: var(--radius-md); padding: 16px 18px; font-size: 13.5px; line-height: 1.55; margin: 20px 0; border: 1px solid transparent; }
+  .callout a { color: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+  .callout strong { font-weight: 700; }
+  .callout-warning { background: var(--warning-wash); border-color: var(--warning-line); color: var(--warning-deep); }
+  .callout-danger { background: var(--danger-wash); border-color: var(--danger-line); color: var(--danger-deep); }
+  .callout-success { background: var(--success-wash); border-color: var(--success-line); color: var(--success); }
+
+  /* ---------- example figures ---------- */
+  .example-figure { margin: 6px 0 4px; }
+  .example-figure img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); }
+  .example-figure .caption { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+  .example-figure.zoomable { position: relative; }
+  .example-figure.zoomable img { position: relative; z-index: 1; cursor: zoom-in; transition: transform .25s ease, z-index 0s .25s; }
+  .example-figure.zoomable img:hover { transform: scale(1.8); z-index: 50; transition: transform .25s ease, z-index 0s; }
+
+  /* ---------- sub-heading for branched procedures within one issue ---------- */
+  .subhead { font-family: var(--font-display); font-weight: 500; font-size: 15px; color: var(--header-grey); margin: 22px 0 8px; }
+
+  /* ---------- checklist ("question") ---------- */
+  .check-list { list-style: none; padding: 0; margin: 20px 0 4px; display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff;
+    display: flex; align-items: flex-start; gap: 12px; font-size: 13.5px; line-height: 1.55;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .check-item.answered { background: var(--success-wash); border-color: var(--success-line); }
+  .check-item.answered strong { color: var(--success); }
+  .check-item input[type="checkbox"] {
+    margin-top: 3px; width: 17px; height: 17px; accent-color: var(--ink); cursor: pointer; flex-shrink: 0;
+  }
+  .check-item label { flex: 1; }
+  .check-status {
+    margin-left: auto; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--success); opacity: 0; transition: opacity .2s ease; white-space: nowrap; padding-top: 2px; flex-shrink: 0;
+  }
+  .check-item.answered .check-status { opacity: 1; }
+
+  /* ---------- prev / next page nav ---------- */
+  .page-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 36px; }
+  .page-nav-btn {
+    display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; border: none;
+    background: none; font-family: var(--font-text); font-size: 12.5px; font-weight: 600; color: var(--ink-soft); padding: 0;
+  }
+  .page-nav-btn.next { flex-direction: row-reverse; }
+  .page-nav-arrow {
+    width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: border-color .18s, background .18s, transform .15s;
+  }
+  .page-nav-arrow svg { width: 17px; height: 17px; stroke: var(--ink); transition: stroke .18s; }
+  .page-nav-btn:not(.disabled):hover .page-nav-arrow { border-color: var(--accent); background: var(--accent-wash); transform: scale(1.06); }
+  .page-nav-btn:not(.disabled):hover .page-nav-arrow svg { stroke: var(--accent-deep); }
+  .page-nav-btn.next:not(.disabled):hover .page-nav-arrow { transform: scale(1.06) translateX(1px); }
+  .page-nav-btn.disabled { pointer-events: none; opacity: 0.35; }
+  .page-nav-btn.disabled .page-nav-arrow { background: var(--paper-soft); }
+
+  /* ---------- action bar ---------- */
+  .action-bar {
+    position: sticky; bottom: 0; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line); padding: 14px 0; margin-top: auto; display: none;
+  }
+  .action-bar.show { display: block; }
+  .action-bar .panel-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .save-note { font-size: 12.5px; font-weight: 500; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; }
+  button.primary, button.ghost {
+    font-family: var(--font-text); font-weight: 600; font-size: 13.5px; border-radius: 980px; cursor: pointer;
+  }
+  button.primary { color: #fff; background: var(--accent); border: none; padding: 11px 22px; transition: background .15s, transform .1s; }
+  button.primary:hover { background: var(--accent-deep); }
+  button.primary:active { transform: scale(0.98); }
+  button.ghost { color: var(--accent); background: none; border: 1px solid var(--line); padding: 10px 18px; transition: border-color .15s, background .15s; }
+  button.ghost:hover { border-color: var(--accent); background: var(--accent-wash); }
+  button.ghost[hidden] { display: none; }
+
+  footer.site-foot { text-align: center; padding: 22px 0 14px; font-size: 11.5px; font-weight: 300; color: var(--ink-soft); }
+
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; }
+
+  /* ---------- per-issue notes/comment box ---------- */
+  .comment-box { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .comment-box-label { font-family: var(--font-display); font-weight: 500; font-size: 13px; color: var(--header-grey); margin-bottom: 8px; }
+  .comment-box-label .comment-box-optional { font-family: var(--font-text); font-weight: 400; color: var(--ink-soft); }
+  .comment-box-input {
+    width: 100%; min-height: 80px; resize: vertical; padding: 12px 14px; border: 1px solid var(--line);
+    border-radius: var(--radius-md); font-family: var(--font-text); font-size: 13.5px; color: var(--ink);
+    background: #fff; line-height: 1.5;
+  }
+  .comment-box-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .comment-box-status { font-size: 11px; color: var(--success); margin-top: 6px; min-height: 14px; }
+</style>
+</head>
+<body class="on-select">
+
+<main class="page-main">
+
+  <div class="top-frame">
+    <div class="panel-inner">
+      <div class="brand">
+        <img class="brand-logo" src="images/smartalock-logo.png" alt="Smartalock">
+        <span class="brand-tagline">Troubleshooting Wizard</span>
+      </div>
+      <div class="top-frame-heading" id="topFrameHeading">
+        <h1 class="hero-title">What's the reported issue?</h1>
+        <p class="sub">Select a symptom below to start guided hardware, network or software diagnostics.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-scroll">
+    <div class="panel-inner">
+
+      <!-- MAIN SELECTION STEP -->
+      <div id="step-select" class="wizard-step active">
+        <a href="Troubleshooting_Hub.html" class="crumb-link">&larr; Choose a different system</a>
+        <div class="decision-grid">
+          <button type="button" class="dcard" data-issue="offline" onclick="goToStep('offline')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/offline-grid.png" alt=""></div>
+              <span class="badge-pill badge-amber">Network</span>
+            </div>
+            <h3>Locker bank status "Offline"</h3>
+            <div class="dcard-sub">The whole bank drops off the admin console.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="locks-grey" onclick="goToStep('locks-grey')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/locks-grey-grid.png" alt=""></div>
+              <span class="badge-pill badge-blue">Controller</span>
+            </div>
+            <h3>Online, but Locks Greyed Out / Unavailable</h3>
+            <div class="dcard-sub">Bank shows Online, but individual locks aren't selectable.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="blue-user" onclick="goToStep('blue-user')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/blue-user-not-found.png" alt=""></div>
+              <span class="badge-pill badge-violet">Config</span>
+            </div>
+            <h3>Blue Screen: "User Not Found on This Bank"</h3>
+            <div class="dcard-sub">Card reads fine, but the bank rejects the user.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="blue-network" onclick="goToStep('blue-network')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/blue-network-unavailable.png" alt=""></div>
+              <span class="badge-pill badge-amber">Network</span>
+            </div>
+            <h3>Blue Screen: "Network Unavailable"</h3>
+            <div class="dcard-sub">Kiosk display can't reach the local network.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="blue-unconnected" onclick="goToStep('blue-unconnected')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/blue-unconnected.png" alt=""></div>
+              <span class="badge-pill badge-blue">Wiring</span>
+            </div>
+            <h3>Blue Screen: "Status: Unconnected"</h3>
+            <div class="dcard-sub">Display is up, but reports no link to the Controller.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="card-reader" onclick="goToStep('card-reader')">
+            <div class="dcard-top">
+              <div class="dcard-icon dcard-icon-glyph">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="9" width="18" height="11" rx="2"/><rect x="7" y="13" width="4" height="3" rx="0.5"/><path d="M9 5.5c1-1 2-1.5 3-1.5s2 .5 3 1.5"/><path d="M7 3.2c1.6-1.6 3.2-2.4 5-2.4s3.4.8 5 2.4"/></svg>
+              </div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Card Reader Not Responding</h3>
+            <div class="dcard-sub">No beep or light when a card is presented.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="stuck-door" onclick="goToStep('stuck-door')">
+            <div class="dcard-top">
+              <div class="dcard-icon dcard-icon-glyph">
+                <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="15" x2="12" y2="17"/></svg>
+              </div>
+              <span class="badge-pill badge-blue">Mechanical</span>
+            </div>
+            <h3>Locker Door Not Opening / Stuck</h3>
+            <div class="dcard-sub">Unlock is triggered, but the latch won't release.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="vpn-restart" onclick="goToStep('vpn-restart')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/vpn-gl-inet-device.png" alt=""></div>
+              <span class="badge-pill badge-amber">Network</span>
+            </div>
+            <h3>Site Unreachable</h3>
+            <div class="dcard-sub">Mobile app and admin portal can't reach the site — or the portal loads but shows stale, outdated data.</div>
+          </button>
+        </div>
+
+        <div class="preview-panel" id="previewPanel" role="button" tabindex="0" aria-label="Example image preview. Hover an issue above to preview it, or activate to open the issue currently shown.">
+          <div class="preview-frame">
+            <img id="previewImg" src="" alt="">
+            <div class="preview-empty" id="previewEmpty"></div>
+          </div>
+          <div class="preview-caption" id="previewCaption">&nbsp;</div>
+          <div class="preview-hint">Hover an issue above to preview it here — or tap the image to open it</div>
+        </div>
+      </div>
+
+      <!-- ISSUE 1: OFFLINE -->
+      <div id="step-offline" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure">
+            <img src="images/offline-bank-status.png" alt="Bank 11 (TIC-3-592-674) status showing Offline">
+            <div class="caption">The bank reports <strong>Offline</strong> in the admin console…</div>
+        </div>
+        <div class="example-figure">
+            <img src="images/offline-grid.png" alt="Grid of individual lock tiles, all shown unavailable while the bank is offline">
+            <div class="caption">…and every lock underneath it goes unavailable at once — unlike the greyed-out case above, here the whole bank drops out together, which points to the Controller's network connection rather than an individual Hub or lock.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="off-1">
+                <label for="off-1"><strong>Check LAN LEDs:</strong> Are both Green and Orange lights flashing on the Controller's LAN port?</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="off-2">
+                <label for="off-2"><strong>Check Cabling:</strong> Verify Full/Standard Ethernet cable connects the controller LAN port to the local network or PoE Injector ("Data In").</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="off-3">
+                <label for="off-3"><strong>Reboot Controller:</strong> Disconnect power (DC cable/PoE injector), wait 10 seconds, reconnect, and allow 5 minutes to boot.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If LAN port LEDs remain completely off after checking physical cables and power, escalate to local IT support to verify patch panel port status and VLAN availability. If the whole site (admin portal and mobile app) is also unreachable, see <a href="#" onclick="goToStep('vpn-restart');return false;">Site Unreachable</a>.
+        </div>
+
+        <div class="example-figure zoomable">
+            <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
+            <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('select')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            All issues
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('locks-grey')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2: LOCKS GREYED OUT -->
+      <div id="step-locks-grey" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure">
+            <img src="images/locks-grey-bank-status.png" alt="Bank 5 (TIC-3-313-335) status showing Online">
+            <div class="caption">The bank itself reports <strong>Online</strong> in the admin console…</div>
+        </div>
+        <div class="example-figure">
+            <img src="images/locks-grey-grid.png" alt="Grid of individual lock tiles shown greyed out and unavailable">
+            <div class="caption">…but the individual locks underneath it are greyed out and unavailable, like this.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="lg-1">
+                <label for="lg-1"><strong>Verify First Hub Cable:</strong> Confirm the cable between Controller USB and "FIRST HUB" is a dedicated USB cable (not Ethernet).</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="lg-2">
+                <label for="lg-2"><strong>Verify Hub Power:</strong> Check DC barrel cable power supply to the "FIRST HUB" unit.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="lg-3">
+                <label for="lg-3"><strong>Inspect Daisy Chains:</strong> Verify Thin/Lite Ethernet cables are correctly linking Hub to Hub and Hub to Locks.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If entire hub rows fail to report despite correct wiring, escalate to Facilities/Hardware support for Hub replacement.
+        </div>
+
+        <div class="example-figure zoomable">
+            <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
+            <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('offline')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('blue-user')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 3: USER NOT FOUND -->
+      <div id="step-blue-user" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure">
+            <img src="images/blue-user-not-found.png" alt="Smartalock kiosk showing Card Swipe screen with the message User not found on this bank">
+            <div class="caption">The kiosk reads the card fine and shows the blue "Card Swipe" screen, but responds with <strong>User not found on this bank</strong>.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="bu-1">
+                <label for="bu-1"><strong>Verify Admin Portal Mapping:</strong> Log into the Smartalock/Floorsense Admin Console and confirm user exists and is active.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bu-2">
+                <label for="bu-2"><strong>Check Group Permissions:</strong> Ensure user belongs to the designated group mapped to this specific locker bank location.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bu-3">
+                <label for="bu-3"><strong>Check Card Number:</strong> Re-scan card in Admin console to ensure RFID payload matches registered user card ID.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If user mapping is verified correct in cloud database but kiosk refuses access, initiate manual sync or escalate to System Administrator.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('locks-grey')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('blue-network')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 4: NETWORK UNAVAILABLE -->
+      <div id="step-blue-network" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure">
+            <img src="images/blue-network-unavailable.png" alt="Smartalock kiosk diagnostics screen showing Status: Network Unavailable, with Ethernet, Date and Time, and Tablet Info panels">
+            <div class="caption">The kiosk's diagnostics screen reports <strong>Status: Network Unavailable</strong>, alongside its Ethernet, Date &amp; Time and Tablet Info panels — useful for confirming IP assignment and firmware version while troubleshooting.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="bn-1">
+                <label for="bn-1"><strong>Check Display Connectivity:</strong> Verify if tablet display uses Wi-Fi or wired Ethernet adaptor.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bn-2">
+                <label for="bn-2"><strong>Verify Network Gateway:</strong> Ensure local router/switch provides DHCP or static IP to display unit.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bn-3">
+                <label for="bn-3"><strong>Restart Display Application:</strong> Force restart Kiosk application or reboot screen hardware.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If network settings match profile but connection fails, escalate to IT Network Team to check Wi-Fi Access Point / Ethernet port block.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('blue-user')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('blue-unconnected')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5: STATUS UNCONNECTED -->
+      <div id="step-blue-unconnected" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure">
+            <img src="images/blue-unconnected.png" alt="Smartalock kiosk Configuration screen showing Wi-Fi Status: Unconnected, with Ethernet also Unconnected">
+            <div class="caption">The kiosk's Configuration screen shows <strong>Wi‑Fi Status: Unconnected</strong> (and Ethernet Status: Unconnected too) — the display itself has no network path to the Controller.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="bc-1">
+                <label for="bc-1"><strong>Check Controller Power:</strong> Verify the Controller unit’s power light is lit, confirming the device is powered on.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bc-2">
+                <label for="bc-2"><strong>Verify IP Address Match:</strong> Ensure Display target Controller IP configuration matches actual assigned Controller IP address.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="bc-3">
+                <label for="bc-3"><strong>Reboot Controller & Display:</strong> Power cycle Controller first, wait 3 minutes, then reboot display.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If IP parameters match but connection fails, escalate to Smartalock Technical Support for Controller firmware verification.
+        </div>
+
+        <div class="example-figure zoomable">
+            <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
+            <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('blue-network')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('card-reader')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 6: CARD READER -->
+      <div id="step-card-reader" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="cr-1">
+                <label for="cr-1"><strong>Verify USB Port Usage:</strong> Ensure Card Reader is plugged into blue USB ports on Full Controller (4-8 ports area).</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="cr-2">
+                <label for="cr-2"><strong>Power Cycle Card Reader:</strong> Unplug reader USB cable from controller, wait 5 seconds, and reconnect firmly.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="cr-3">
+                <label for="cr-3"><strong>Test Card Format:</strong> Test with a known working admin/master access card.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If reader exhibits no LED lights or response across multiple ports, escalate for Card Reader replacement.
+        </div>
+
+        <div class="example-figure zoomable">
+            <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
+            <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('blue-unconnected')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('stuck-door')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 7: STUCK DOOR -->
+      <div id="step-stuck-door" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="sd-1">
+                <label for="sd-1"><strong>Manual Pressure Test:</strong> Gently push inward on locker door while triggering unlock via App or Admin Console to relieve spring binding.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="sd-2">
+                <label for="sd-2"><strong>Listen for Solenoid Click:</strong> Check if unlock click/buzzer sounds at target lock during unlock attempt.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="sd-3">
+                <label for="sd-3"><strong>Check Lock Cabling:</strong> Inspect Lite Ethernet connection cable behind locker door for loose fitting or pinching.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If solenoid fails to actuate or mechanism is damaged, utilize manual key/override tool and dispatch hardware service technician.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('card-reader')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('vpn-restart')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 8: VPN APPLIANCE RESTART -->
+      <div id="step-vpn-restart" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <p style="font-size:13.5px;line-height:1.6;color:var(--ink-soft);margin:14px 0 4px;">If the appliance is powered off or disconnected from the internet, the whole site becomes unreachable — both for mobile app end users and for administrators trying to reach the admin portal. Identify the appliance model installed on site and follow the matching steps below.</p>
+
+        <ul class="check-list" style="margin:16px 0 4px;">
+            <li class="check-item" style="background:var(--paper-soft);">
+                <label style="flex:1;"><strong>Common symptom — full outage:</strong> The mobile app can't reach the site.</label>
+            </li>
+            <li class="check-item" style="background:var(--paper-soft);">
+                <label style="flex:1;"><strong>Common symptom — stale data:</strong> The admin portal loads fine, but doesn't reflect any new activity — it may still show yesterday's check-ins/status instead of today's. This usually means the VPN tunnel has dropped intermittently rather than failed outright, so the portal is showing its last-cached view rather than a live one.</label>
+            </li>
+        </ul>
+
+        <div class="example-figure">
+            <img src="images/vpn-rack-cabling.png" alt="Patch panel and appliance in the server rack, with the WAN and LAN cables into the appliance highlighted">
+            <div class="caption">The appliance is typically rack-mounted near the patch panel, with a WAN cable (internet) and a LAN cable (local network) running into it.</div>
+        </div>
+
+        <div class="subhead">GL-iNet appliance</div>
+        <div class="example-figure">
+            <img src="images/vpn-gl-inet-device.png" alt="GL-iNet travel router with the power button on top and the PWR LED on the front panel highlighted">
+            <div class="caption">Power button is on the top edge; the <strong>PWR</strong> LED on the front panel should be lit — if it's off, follow the steps below.</div>
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="vpn-1">
+                <label for="vpn-1"><strong>Verify Upstream Internet:</strong> Unplug the WAN/Internet cable from the appliance and plug it into a laptop directly to confirm an internet signal is actually present at the site, before assuming the appliance itself is at fault.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-2">
+                <label for="vpn-2"><strong>Confirm Connections:</strong> Before power cycling, ensure the device is correctly connected to power and data.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-3">
+                <label for="vpn-3"><strong>Power Off:</strong> Hold the power button for a few seconds to turn off the device, and confirm the LED labelled PWR goes off.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-4">
+                <label for="vpn-4"><strong>Power Back On:</strong> Hold the power button for a couple of seconds to power the device back on, then wait about 15 minutes for it to fully start up.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-5">
+                <label for="vpn-5"><strong>SIM Card Fallback:</strong> The GL-iNet has a SIM card slot — if the wired WAN connection can't be restored, insert a SIM card so the appliance can run on cellular data as a temporary fix.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-6">
+                <label for="vpn-6"><strong>Already on SIM Data?</strong> If the appliance is already configured to run on a SIM, confirm the SIM has an active data plan and sufficient balance — a lapsed or un-topped-up SIM is a common cause of this issue.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="subhead">Meraki appliance</div>
+        <div class="example-figure">
+            <img src="images/vpn-meraki-device.png" alt="Cisco Meraki appliance with the reset button, power button and LED, and Internet/LAN ports highlighted">
+            <div class="caption">Front light should be solid white; the <strong>Power</strong> button and <strong>Internet</strong> port are on the back panel, alongside the LAN ports.</div>
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="vpn-7">
+                <label for="vpn-7"><strong>Verify Upstream Internet:</strong> Unplug the Internet cable from the appliance and plug it into a laptop directly to confirm an internet signal is actually present at the site, before assuming the appliance itself is at fault.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-8">
+                <label for="vpn-8"><strong>Check Front Light:</strong> It should be solid white. If lit but not solid white, ensure a cable is correctly plugged into the Internet port.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-9">
+                <label for="vpn-9"><strong>Check Power:</strong> If the light is off, confirm the power button is pressed in and the power cable is plugged in correctly.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="vpn-10">
+                <label for="vpn-10"><strong>Power Cycle:</strong> If everything looks correct but the problem persists, press the power button to shut the device down, then press it in again to power it back on.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the appliance shows no power/link lights at all after a confirmed power cycle, or the site remains unreachable after the 15-minute startup window, escalate to network/IT support to check upstream internet service at the site.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('stuck-door')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next disabled">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- RESOLVED STEP -->
+      <div id="step-resolved" class="wizard-step">
+        <div class="callout callout-success">
+            <strong>Success:</strong> The issue has been addressed or diagnostic steps completed.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="action-bar" id="actionBar">
+    <div class="panel-inner">
+      <div class="save-note" id="saveNote"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost" id="ghostBtn" type="button" onclick="goToStep('select')">All issues</button>
+        <button class="primary" id="primaryBtn" type="button" onclick="goToStep('resolved')">Issue Resolved</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-foot">Smartalock Support Wizard</footer>
+
+</main>
+
+<script src="wizard-data.js"></script>
+<script>
+    const PAGE_KEY = 'Locker';
+
+    function updateChecklistNote(stepId) {
+        const note = document.getElementById('saveNote');
+        const panel = document.getElementById('step-' + stepId);
+        const boxes = panel ? panel.querySelectorAll('.check-item input[type="checkbox"]') : [];
+        if (!boxes.length) { note.textContent = ''; return; }
+        const checked = Array.from(boxes).filter(b => b.checked).length;
+        note.textContent = checked + ' of ' + boxes.length + ' steps checked';
+    }
+
+    const STEP_TITLES = {
+        'select': { title: 'What\'s the reported issue?', sub: 'Select a symptom below to start guided hardware, network or software diagnostics.' },
+        'offline': { title: 'Locker Bank Status: "Offline"', sub: 'Inspect the LAN ports on the Smartalock Full Controller.' },
+        'locks-grey': { title: 'Locker Bank "Online", but Locks Not Available / Greyed Out', sub: 'Indicates communication loss between Controller, Hubs, and individual Lock units.' },
+        'blue-user': { title: 'Blue Screen: "User Not Found on This Bank"', sub: 'Card/User ID read successfully, but user account is unassigned or restricted from this locker bank.' },
+        'blue-network': { title: 'Blue Screen: "Network Unavailable"', sub: 'Screen/Touch panel cannot reach local network or controller gateway.' },
+        'blue-unconnected': { title: 'Blue Screen: "Status: Unconnected"', sub: 'Display unit is online but cannot communicate directly with Controller.' },
+        'card-reader': { title: 'Card Reader is Not Responding', sub: 'Physical swipe/RFID reader does not beep or illuminate upon card presentation.' },
+        'stuck-door': { title: 'Locker Door Not Opening / Stuck', sub: 'Software registers unlock trigger, but physical latch remains engaged.' },
+        'vpn-restart': { title: 'VPN Appliance Down / Site Unreachable', sub: 'The on-site VPN appliance (usually in the main comms/server room) has lost power or its internet connection, cutting off the encrypted tunnel that remote users and the admin portal rely on.' },
+        'resolved': { title: 'Troubleshooting Complete' }
+    };
+    const topFrameH1 = document.querySelector('#topFrameHeading h1.hero-title');
+    const topFrameSub = document.querySelector('#topFrameHeading p.sub');
+
+    function goToStep(stepId) {
+        if (window.STW) STW.logEvent({ type: 'visit', page: PAGE_KEY, step: stepId });
+        document.body.classList.toggle('on-select', stepId === 'select');
+        document.querySelectorAll('.wizard-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        const target = document.getElementById('step-' + stepId);
+        if (target) {
+            target.classList.add('active');
+        }
+        const stepInfo = STEP_TITLES[stepId];
+        topFrameH1.textContent = stepInfo ? stepInfo.title : '';
+        topFrameSub.textContent = (stepInfo && stepInfo.sub) ? stepInfo.sub : '';
+        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+        const actionBar = document.getElementById('actionBar');
+        const ghostBtn = document.getElementById('ghostBtn');
+        const primaryBtn = document.getElementById('primaryBtn');
+
+        if (stepId === 'select') {
+            actionBar.classList.remove('show');
+            if (!previewHovering) startRotation();
+        } else if (stepId === 'resolved') {
+            stopRotation();
+            actionBar.classList.add('show');
+            ghostBtn.hidden = true;
+            primaryBtn.textContent = 'Return to Start';
+            primaryBtn.onclick = function () { goToStep('select'); };
+            document.getElementById('saveNote').textContent = '';
+        } else {
+            stopRotation();
+            actionBar.classList.add('show');
+            ghostBtn.hidden = false;
+            ghostBtn.textContent = 'All issues';
+            ghostBtn.onclick = function () { goToStep('select'); };
+            primaryBtn.textContent = 'Issue Resolved';
+            primaryBtn.onclick = function () {
+                if (window.STW) STW.logEvent({ type: 'resolved', page: PAGE_KEY, step: stepId });
+                goToStep('resolved');
+            };
+            updateChecklistNote(stepId);
+        }
+    }
+
+    document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            this.closest('.check-item').classList.toggle('answered', this.checked);
+            const activeStep = document.querySelector('.wizard-step.active');
+            if (activeStep) updateChecklistNote(activeStep.id.replace('step-', ''));
+        });
+    });
+
+    /* ---------- issue image preview / slideshow ---------- */
+    const ISSUE_PREVIEWS = {
+        'offline': { title: 'Locker bank status "Offline"', image: 'images/offline-grid.png', alt: 'Grid of individual lock tiles, all shown unavailable while the bank is offline' },
+        'locks-grey': { title: 'Online, but Locks Greyed Out / Unavailable', image: 'images/locks-grey-grid.png', alt: 'Grid of individual lock tiles shown greyed out and unavailable' },
+        'blue-user': { title: 'Blue Screen: "User Not Found on This Bank"', image: 'images/blue-user-not-found.png', alt: 'Smartalock kiosk showing Card Swipe screen with the message User not found on this bank' },
+        'blue-network': { title: 'Blue Screen: "Network Unavailable"', image: 'images/blue-network-unavailable.png', alt: 'Smartalock kiosk diagnostics screen showing Status: Network Unavailable' },
+        'blue-unconnected': { title: 'Blue Screen: "Status: Unconnected"', image: 'images/blue-unconnected.png', alt: 'Smartalock kiosk Configuration screen showing Wi-Fi Status: Unconnected' },
+        'vpn-restart': { title: 'Site Unreachable', image: 'images/vpn-gl-inet-device.png', alt: 'GL-iNet travel router with the power button and PWR LED highlighted' }
+    };
+    /* card-reader and stuck-door have no example screenshot yet, so they're left out of
+       ISSUE_PREVIEWS on purpose — hovering them shows the "no example image yet" placeholder,
+       and they're skipped by the idle slideshow. Add an entry above as soon as a screenshot exists. */
+    const ROTATION_ORDER = ['offline', 'locks-grey', 'blue-user', 'blue-network', 'blue-unconnected', 'vpn-restart'];
+
+    const previewPanel = document.getElementById('previewPanel');
+    const previewImg = document.getElementById('previewImg');
+    const previewEmpty = document.getElementById('previewEmpty');
+    const previewCaption = document.getElementById('previewCaption');
+    let previewHovering = false;
+    let previewTargetIssue = ROTATION_ORDER[0];
+    let rotationTimer = null;
+    let rotationIndex = 0;
+
+    function renderPreview(issueId) {
+        const data = ISSUE_PREVIEWS[issueId];
+        previewTargetIssue = issueId;
+        if (!data) {
+            previewPanel.classList.add('empty');
+            previewEmpty.textContent = ALL_ISSUE_TITLES[issueId] || '';
+            previewCaption.textContent = 'No example image yet — tap to open this issue';
+            return;
+        }
+        previewPanel.classList.remove('empty');
+        previewImg.classList.add('fading');
+        window.setTimeout(function () {
+            previewImg.src = data.image;
+            previewImg.alt = data.alt;
+            previewCaption.textContent = data.title;
+            previewImg.classList.remove('fading');
+        }, 160);
+    }
+
+    const ALL_ISSUE_TITLES = {
+        'offline': 'Locker bank status "Offline"',
+        'locks-grey': 'Online, but Locks Greyed Out / Unavailable',
+        'blue-user': 'Blue Screen: "User Not Found on This Bank"',
+        'blue-network': 'Blue Screen: "Network Unavailable"',
+        'blue-unconnected': 'Blue Screen: "Status: Unconnected"',
+        'card-reader': 'Card Reader Not Responding',
+        'stuck-door': 'Locker Door Not Opening / Stuck',
+        'vpn-restart': 'Site Unreachable'
+    };
+
+    function startRotation() {
+        stopRotation();
+        rotationTimer = window.setInterval(function () {
+            rotationIndex = (rotationIndex + 1) % ROTATION_ORDER.length;
+            renderPreview(ROTATION_ORDER[rotationIndex]);
+        }, 3200);
+    }
+    function stopRotation() {
+        if (rotationTimer) window.clearInterval(rotationTimer);
+        rotationTimer = null;
+    }
+
+    document.querySelectorAll('#step-select .dcard[data-issue]').forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+            previewHovering = true;
+            stopRotation();
+            renderPreview(card.dataset.issue);
+        });
+        card.addEventListener('focus', function () {
+            previewHovering = true;
+            stopRotation();
+            renderPreview(card.dataset.issue);
+        });
+        card.addEventListener('mouseleave', function () {
+            previewHovering = false;
+            if (document.getElementById('step-select').classList.contains('active')) startRotation();
+        });
+        card.addEventListener('blur', function () {
+            previewHovering = false;
+            if (document.getElementById('step-select').classList.contains('active')) startRotation();
+        });
+    });
+
+    function activatePreviewTarget() {
+        if (previewTargetIssue) goToStep(previewTargetIssue);
+    }
+    previewPanel.addEventListener('click', activatePreviewTarget);
+    previewPanel.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activatePreviewTarget(); }
+    });
+
+    renderPreview(ROTATION_ORDER[0]);
+
+    /* ---------- per-issue notes/comment box ---------- */
+    (function setupCommentBoxes() {
+        function debounce(fn, wait) {
+            let t;
+            return function () {
+                const args = arguments, ctx = this;
+                clearTimeout(t);
+                t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+            };
+        }
+        document.querySelectorAll('.wizard-step').forEach(function (step) {
+            const stepId = step.id.replace('step-', '');
+            if (stepId === 'select' || stepId === 'resolved') return;
+            const wrap = document.createElement('div');
+            wrap.className = 'comment-box';
+            wrap.innerHTML =
+                '<div class="comment-box-label">Notes <span class="comment-box-optional">(optional)</span></div>' +
+                '<textarea class="comment-box-input" placeholder="Add a note about this issue — what worked, site specifics, who to contact..."></textarea>' +
+                '<div class="comment-box-status">&nbsp;</div>';
+            const nav = step.querySelector('.page-nav');
+            if (nav) { step.insertBefore(wrap, nav); } else { step.appendChild(wrap); }
+
+            const textarea = wrap.querySelector('.comment-box-input');
+            const status = wrap.querySelector('.comment-box-status');
+            if (window.STW) textarea.value = STW.getComment(PAGE_KEY, stepId);
+            const save = debounce(function () {
+                if (window.STW) STW.setComment(PAGE_KEY, stepId, textarea.value);
+                status.textContent = 'Saved';
+                window.setTimeout(function () { status.textContent = ' '; }, 1500);
+            }, 500);
+            textarea.addEventListener('input', save);
+        });
+    })();
+
+    /* ---------- deep-linking: ?issue=<step-id> jumps straight to that step ---------- */
+    const deepLinkIssue = new URLSearchParams(window.location.search).get('issue');
+    if (deepLinkIssue && STEP_TITLES[deepLinkIssue] && document.getElementById('step-' + deepLinkIssue)) {
+        goToStep(deepLinkIssue);
+    } else {
+        goToStep('select');
+    }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floorsense Desk Troubleshooting Wizard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    --ink: #1D1D1F;
+    --ink-soft: #6E6E73;
+    --header-grey: #48484A;
+    --paper: #FFFFFF;
+    --paper-soft: #F5F5F7;
+    --line: #D2D2D7;
+    --accent: #0071E3;
+    --accent-wash: #E8F1FC;
+    --accent-deep: #0058B0;
+    --danger: #FF3B30;
+    --danger-wash: #FFF1F0;
+    --danger-line: #FFC6C2;
+    --danger-deep: #C22A20;
+    --warning: #D98E00;
+    --warning-wash: #FFF7E8;
+    --warning-line: #F4DDA6;
+    --warning-deep: #93650A;
+    --success: #1E6B3A;
+    --success-wash: #F0F9F1;
+    --success-line: #B7E1BD;
+    --violet: #7C3AED;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --radius-sm: 10px;
+    --shadow: 0 2px 8px rgba(0,0,0,0.04), 0 24px 48px -24px rgba(0,0,0,0.14);
+    --panel-maxw: 860px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-main { min-height: 100vh; display: flex; flex-direction: column; }
+  .panel-inner { max-width: var(--panel-maxw); margin: 0 auto; width: 100%; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .top-frame {
+    position: sticky; top: 0; z-index: 50; background: var(--paper);
+    padding: 16px 0; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo { height: 20px; width: auto; display: block; flex-shrink: 0; }
+  .brand-tagline {
+    color: var(--ink-soft); font-family: var(--font-text); font-weight: 500; font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase; padding-left: 12px; border-left: 1px solid var(--line);
+  }
+  .top-frame-heading { display: block; margin-top: 32px; text-align: left; }
+  .top-frame-heading h1.hero-title { font-size: clamp(37.5px, 5.25vw, 50.6px); margin: 0; }
+  .top-frame-heading h1.hero-title:not(:only-child) { margin: 0 0 8px; }
+  .top-frame-heading p.sub { display: none; font-size: 19.5px; line-height: 1.5; color: var(--ink-soft); margin: 0; max-width: none; }
+  .top-frame-heading p.sub:not(:empty) { display: block; }
+
+  /* ---------- intro / hero ---------- */
+  .panel-scroll { flex: 1; padding: 32px 0 48px; }
+  h1.hero-title {
+    font-family: var(--font-display); font-weight: 200; letter-spacing: -0.5px; line-height: 1.12;
+    color: #102A43; margin: 0 0 14px;
+  }
+
+  .crumb-link {
+    display: inline-flex; align-items: center; gap: 6px; color: var(--accent-deep); text-decoration: none;
+    font-weight: 600; font-size: 13px; margin-bottom: 18px;
+  }
+  .crumb-link:hover { text-decoration: underline; }
+
+  /* ---------- issue picker cards ---------- */
+  .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 8px; }
+  @media (max-width: 560px) { .decision-grid { grid-template-columns: 1fr; } }
+
+  .dcard {
+    background: #F1F1F1; border: none; border-radius: var(--radius-lg);
+    padding: 20px 22px 22px; position: relative;
+    transition: transform .25s, background-color .25s, outline .25s;
+    display: flex; flex-direction: column; cursor: pointer; text-align: left;
+    font-family: var(--font-text); outline: 0 solid transparent;
+    text-decoration: none; color: inherit;
+  }
+  .dcard:hover { transform: translate(-3px, -3px); background: #fff; outline: 1.5px solid #000; }
+  .dcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .dcard h3 { font-family: var(--font-display); font-weight: 500; font-size: 16.5px; margin: 0; color: var(--header-grey); line-height: 1.35; }
+  .dcard .dcard-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; line-height: 1.5; }
+  .dcard .dcard-icon {
+    width: 46px; height: 46px; border-radius: 13px; overflow: hidden; flex-shrink: 0;
+    background: #fff; border: 1px solid var(--line);
+  }
+  .dcard .dcard-icon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  .badge-pill {
+    font-size: 8.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px;
+    border-radius: 100px; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: #fff;
+  }
+  .badge-pill.badge-blue { color: var(--accent); border: 1.5px solid var(--accent); }
+  .badge-pill.badge-amber { color: var(--warning); border: 1.5px solid var(--warning); }
+  .badge-pill.badge-violet { color: var(--violet); border: 1.5px solid var(--violet); }
+
+  /* ---------- issue image preview / slideshow ---------- */
+  .preview-panel {
+    margin-top: 22px; border-radius: var(--radius-lg);
+    background: var(--paper-soft); padding: 20px; cursor: pointer;
+    transition: box-shadow .2s;
+  }
+  .preview-panel:hover, .preview-panel:focus-visible { box-shadow: 0 4px 18px rgba(0,113,227,0.14); outline: none; }
+  .preview-frame {
+    max-width: 480px; min-height: 170px; margin: 0 auto; border-radius: var(--radius-md); overflow: hidden;
+    background: #fff; display: flex; align-items: center; justify-content: center;
+  }
+  .preview-frame img { display: block; width: 100%; height: auto; opacity: 1; transition: opacity .2s ease; }
+  .preview-frame img.fading { opacity: 0; }
+  .preview-panel.empty .preview-frame img { display: none; }
+  .preview-empty {
+    display: none; padding: 46px 28px; text-align: center; width: 100%;
+    font-family: var(--font-display); font-weight: 500; font-size: 22px; line-height: 1.3; color: var(--header-grey);
+  }
+  .preview-panel.empty .preview-empty { display: block; }
+  .preview-caption { text-align: center; margin-top: 14px; font-size: 13.5px; font-weight: 600; color: var(--header-grey); min-height: 18px; }
+  .preview-panel.empty .preview-caption { color: var(--ink-soft); font-weight: 400; }
+  .preview-hint { text-align: center; font-size: 11.5px; color: var(--ink-soft); margin-top: 4px; }
+
+  /* ---------- callouts ---------- */
+  .callout { border-radius: var(--radius-md); padding: 16px 18px; font-size: 13.5px; line-height: 1.55; margin: 20px 0; border: 1px solid transparent; }
+  .callout a { color: inherit; font-weight: 700; text-decoration: underline; cursor: pointer; }
+  .callout strong { font-weight: 700; }
+  .callout-warning { background: var(--warning-wash); border-color: var(--warning-line); color: var(--warning-deep); }
+  .callout-danger { background: var(--danger-wash); border-color: var(--danger-line); color: var(--danger-deep); }
+  .callout-success { background: var(--success-wash); border-color: var(--success-line); color: var(--success); }
+  .callout-info { background: var(--accent-wash); border-color: #BEE3FB; color: var(--accent-deep); }
+  .callout ul { margin: 6px 0 0; padding-left: 20px; }
+  .callout li { margin: 3px 0; }
+
+  /* ---------- example figures ---------- */
+  .example-figure { margin: 6px 0 4px; }
+  .example-figure img { display: block; width: 100%; height: auto; border-radius: var(--radius-md); }
+  .example-figure .caption { font-size: 12.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.5; }
+  .example-figure.compact { max-width: 60%; margin-left: auto; margin-right: auto; }
+  .example-figure video { display: block; width: 100%; height: auto; border-radius: var(--radius-md); background: #000; }
+  .handset-detail-step .example-figure img,
+  .handset-detail-step .example-figure video { box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12); }
+
+  /* ---------- sub-heading for branched procedures within one issue ---------- */
+  .subhead { font-family: var(--font-display); font-weight: 500; font-size: 15px; color: var(--header-grey); margin: 22px 0 8px; }
+
+  /* ---------- checklist ("question") ---------- */
+  .check-list { list-style: none; padding: 0; margin: 20px 0 4px; display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff;
+    display: flex; align-items: flex-start; gap: 12px; font-size: 13.5px; line-height: 1.55;
+    transition: background .2s ease, border-color .2s ease;
+  }
+  .check-item.answered { background: var(--success-wash); border-color: var(--success-line); }
+  .check-item.answered strong { color: var(--success); }
+  .check-item input[type="checkbox"] {
+    margin-top: 3px; width: 17px; height: 17px; accent-color: var(--ink); cursor: pointer; flex-shrink: 0;
+  }
+  .check-item label { flex: 1; }
+  .check-status {
+    margin-left: auto; font-size: 10.5px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase;
+    color: var(--success); opacity: 0; transition: opacity .2s ease; white-space: nowrap; padding-top: 2px; flex-shrink: 0;
+  }
+  .check-item.answered .check-status { opacity: 1; }
+
+  /* ---------- plain numbered steps (no checkbox) ---------- */
+  .step-list { margin: 16px 0 4px; padding-left: 22px; font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+  .step-list li { margin: 10px 0; }
+
+  /* ---------- prev / next page nav ---------- */
+  .page-nav { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 36px; }
+  .page-nav-btn {
+    display: flex; align-items: center; gap: 10px; text-decoration: none; cursor: pointer; border: none;
+    background: none; font-family: var(--font-text); font-size: 12.5px; font-weight: 600; color: var(--ink-soft); padding: 0;
+  }
+  .page-nav-btn.next { flex-direction: row-reverse; }
+  .page-nav-arrow {
+    width: 44px; height: 44px; border-radius: 50%; border: 1.5px solid var(--line); background: var(--paper);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: border-color .18s, background .18s, transform .15s;
+  }
+  .page-nav-arrow svg { width: 17px; height: 17px; stroke: var(--ink); transition: stroke .18s; }
+  .page-nav-btn:not(.disabled):hover .page-nav-arrow { border-color: var(--accent); background: var(--accent-wash); transform: scale(1.06); }
+  .page-nav-btn:not(.disabled):hover .page-nav-arrow svg { stroke: var(--accent-deep); }
+  .page-nav-btn.next:not(.disabled):hover .page-nav-arrow { transform: scale(1.06) translateX(1px); }
+  .page-nav-btn.disabled { pointer-events: none; opacity: 0.35; }
+  .page-nav-btn.disabled .page-nav-arrow { background: var(--paper-soft); }
+
+  /* ---------- action bar ---------- */
+  .action-bar {
+    position: sticky; bottom: 0; background: rgba(255,255,255,0.94); backdrop-filter: blur(8px);
+    border-top: 1px solid var(--line); padding: 14px 0; margin-top: auto; display: none;
+  }
+  .action-bar.show { display: block; }
+  .action-bar .panel-inner { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  .save-note { font-size: 12.5px; font-weight: 500; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; }
+  button.primary, button.ghost {
+    font-family: var(--font-text); font-weight: 600; font-size: 13.5px; border-radius: 980px; cursor: pointer;
+  }
+  button.primary { color: #fff; background: var(--accent); border: none; padding: 11px 22px; transition: background .15s, transform .1s; }
+  button.primary:hover { background: var(--accent-deep); }
+  button.primary:active { transform: scale(0.98); }
+  button.ghost { color: var(--accent); background: none; border: 1px solid var(--line); padding: 10px 18px; transition: border-color .15s, background .15s; }
+  button.ghost:hover { border-color: var(--accent); background: var(--accent-wash); }
+  button.ghost[hidden] { display: none; }
+
+  footer.site-foot { text-align: center; padding: 22px 0 14px; font-size: 11.5px; font-weight: 300; color: var(--ink-soft); }
+
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; }
+
+  /* ---------- per-issue notes/comment box ---------- */
+  .comment-box { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); }
+  .comment-box-label { font-family: var(--font-display); font-weight: 500; font-size: 13px; color: var(--header-grey); margin-bottom: 8px; }
+  .comment-box-label .comment-box-optional { font-family: var(--font-text); font-weight: 400; color: var(--ink-soft); }
+  .comment-box-input {
+    width: 100%; min-height: 80px; resize: vertical; padding: 12px 14px; border: 1px solid var(--line);
+    border-radius: var(--radius-md); font-family: var(--font-text); font-size: 13.5px; color: var(--ink);
+    background: #fff; line-height: 1.5;
+  }
+  .comment-box-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .comment-box-status { font-size: 11px; color: var(--success); margin-top: 6px; min-height: 14px; }
+</style>
+</head>
+<body class="on-select">
+
+<main class="page-main">
+
+  <div class="top-frame">
+    <div class="panel-inner">
+      <div class="brand">
+        <img class="brand-logo" src="images/floorsense-logo.png" alt="Floorsense">
+        <span class="brand-tagline">Troubleshooting Wizard</span>
+      </div>
+      <div class="top-frame-heading" id="topFrameHeading">
+        <h1 class="hero-title">What's the reported issue?</h1>
+        <p class="sub">Select a symptom below to start guided desk diagnostics.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-scroll">
+    <div class="panel-inner">
+
+      <!-- MAIN SELECTION STEP -->
+      <div id="step-select" class="wizard-step active">
+        <a href="Troubleshooting_Hub.html" class="crumb-link">&larr; Choose a different system</a>
+        <div class="decision-grid">
+          <button type="button" class="dcard" data-issue="desks-offline" onclick="goToStep('desks-offline')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/radio-antenna-unit.png" alt=""></div>
+              <span class="badge-pill badge-amber">Network</span>
+            </div>
+            <h3>Desks Periodically Offline</h3>
+            <div class="dcard-sub">One or more desks periodically show offline.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="handset-error" onclick="goToStep('handset-error')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-x-screen.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Handset/Display Screen Issues</h3>
+            <div class="dcard-sub">The desk handset is showing an error state.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="motion-sensor" onclick="goToStep('motion-sensor')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/admin-desk-analytics-demo.gif" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Motion Sensor Diagnostics</h3>
+            <div class="dcard-sub">Occupancy / motion sensor isn't behaving as expected.</div>
+          </button>
+          <button type="button" class="dcard" data-issue="handset-diagnostics" onclick="goToStep('handset-diagnostics')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/offline-puck-floorplan.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Handset Diagnostics</h3>
+            <div class="dcard-sub">Find and fix an offline puck or handset.</div>
+          </button>
+          <a class="dcard" data-issue="vpn-restart" href="Smartalock_Interactive_Troubleshooting_Wizard.html?issue=vpn-restart">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/vpn-site-floorplan.png" alt=""></div>
+              <span class="badge-pill badge-amber">Network</span>
+            </div>
+            <h3>No Mapping / Site Unreachable &#8599;</h3>
+            <div class="dcard-sub">No mapping, can't reach site via the app or the portal — same on-site VPN appliance as the Locker System wizard. Opens its "Site Unreachable" guide.</div>
+          </a>
+        </div>
+
+        <div class="preview-panel" id="previewPanel" role="button" tabindex="0" aria-label="Example image preview. Hover an issue above to preview it, or activate to open the issue currently shown.">
+          <div class="preview-frame">
+            <img id="previewImg" src="" alt="">
+            <div class="preview-empty" id="previewEmpty"></div>
+          </div>
+          <div class="preview-caption" id="previewCaption">&nbsp;</div>
+          <div class="preview-hint">Hover an issue above to preview it here — or tap the image to open it</div>
+        </div>
+      </div>
+
+      <!-- ISSUE 1: DESKS PERIODICALLY OFFLINE -->
+      <div id="step-desks-offline" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> A group of desks appears Offline, even though the pucks/handsets are powered on and properly connected.
+        </div>
+
+        <div class="example-figure">
+            <img src="images/offline-puck-floorplan.png" alt="Floor plan diagram with desk icons. Most desks show a solid green or orange dot, but one desk in the top-left is circled in red and shown as a pale, washed-out green dot to indicate it is offline">
+            <div class="caption">Offline desks appear greyed out on the floor plan (circled above) in the mobile app — tapping one of these desks shows its status as offline.</div>
+        </div>
+
+        <div class="subhead">1. Radio Antenna</div>
+        <div class="example-figure compact">
+            <img src="images/radio-antenna-unit.png" alt="Floorsight Display Radio Unit, a small black device with a USB cable plugged into its side">
+            <div class="caption">The radio antenna is a small black device labelled "Floorsight Display Radio Unit."</div>
+        </div>
+
+        <div class="subhead">2. Floorsense Controller</div>
+        <div class="example-figure compact">
+            <img src="images/floorsense-controller-usb-port.png" alt="Floorsense Controller with its blue USB port highlighted, labelled Blue USB Port (antenna connection)">
+            <div class="caption">This is the controller that the radio antenna connects to.</div>
+        </div>
+
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="do-1">
+                <label for="do-1"><strong>Locate the Radio Antenna:</strong> Find the Floorsight Display Radio Unit (Radio Antenna) for the affected desk zone. It's mounted in the middle of that desk zone — either on the ceiling or under a desk — rather than at a central equipment location.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="do-2">
+                <label for="do-2"><strong>Find the Controller:</strong> Locate the Floorsense Controller it is connected to. Like the antenna, it's mounted within the same desk zone — on the ceiling or under a desk — not in a central comms/server room.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="do-3">
+                <label for="do-3"><strong>Unplug the USB Cable:</strong> Unplug the USB cable from the blue USB port on the controller.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="do-4">
+                <label for="do-4"><strong>Wait 5 Seconds:</strong> Give the radio antenna a moment to fully power down.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="do-5">
+                <label for="do-5"><strong>Reconnect the Cable:</strong> Plug the USB cable back into the same USB port.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="do-6">
+                <label for="do-6"><strong>Wait 1–2 Minutes:</strong> Allow time for the antenna to reconnect.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-info">
+            <strong>Note:</strong> This process only restarts the radio antenna. It does not reboot the controller or affect any system settings.
+        </div>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The radio antenna will restart, the controller will reconnect automatically, and all desks should return online within 1–2 minutes.
+        </div>
+
+        <div class="callout callout-info">
+            <strong>Tip:</strong> If the desks are still offline after 2 minutes, check that the USB cable is fully seated in the blue USB port.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Important:</strong> Only unplug the USB cable connected to the radio antenna. Do not disconnect the controller's power cable.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If desks remain offline after confirming the cable is fully seated and waiting the full 1–2 minute reconnect window, escalate to Floorsense technical support for radio antenna / controller diagnostics.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('select')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            All issues
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-error')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2: HANDSET/DISPLAY SCREEN ISSUES (SUB-HUB) -->
+      <div id="step-handset-error" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+
+        <div class="decision-grid">
+          <button type="button" class="dcard" data-sub-issue="handset-screensaver" onclick="goToStep('handset-screensaver')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-reboot-demo-poster.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Screen Saver / Inactive Display</h3>
+            <div class="dcard-sub">The handset's screen looks blank or asleep.</div>
+          </button>
+          <button type="button" class="dcard" data-sub-issue="handset-blue-info" onclick="goToStep('handset-blue-info')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-blue-info-screen.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Stuck on the Blue Info Screen</h3>
+            <div class="dcard-sub">Shows hardware, boot and build version instead of the home screen.</div>
+          </button>
+          <button type="button" class="dcard" data-sub-issue="handset-bootloader" onclick="goToStep('handset-bootloader')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-bootloader-reboot.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Stuck on the Bootloader Screen</h3>
+            <div class="dcard-sub">Shows hardware, application and radio details instead of starting up.</div>
+          </button>
+          <button type="button" class="dcard" data-sub-issue="handset-x-screen" onclick="goToStep('handset-x-screen')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-x-screen.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Stuck on an "X" Screen</h3>
+            <div class="dcard-sub">Large white X — handset is disconnected or not configured.</div>
+          </button>
+        </div>
+
+        <div class="preview-panel" id="previewPanelSub" role="button" tabindex="0" aria-label="Example image preview. Hover a screen state above to preview it, or activate to open the issue currently shown.">
+          <div class="preview-frame">
+            <img id="previewImgSub" src="" alt="">
+            <div class="preview-empty" id="previewEmptySub"></div>
+          </div>
+          <div class="preview-caption" id="previewCaptionSub">&nbsp;</div>
+          <div class="preview-hint">Hover a screen state above to preview it here — or tap the image to open it</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('desks-offline')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('motion-sensor')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2a: SCREEN SAVER / INACTIVE DISPLAY -->
+      <div id="step-handset-screensaver" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('handset-error');return false;">&larr; Handset/Display Screen Issues</a>
+
+        <div class="example-figure compact">
+            <video controls preload="metadata" poster="images/handset-reboot-demo-poster.png">
+                <source src="images/handset-reboot-demo.mp4" type="video/mp4">
+                Your browser does not support embedded video playback.
+            </video>
+            <div class="caption">Tap the screen to activate it and return to the home screen.</div>
+        </div>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-error')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Handset/Display Screen Issues
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-blue-info')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2b: STUCK ON THE BLUE INFO SCREEN -->
+      <div id="step-handset-blue-info" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('handset-error');return false;">&larr; Handset/Display Screen Issues</a>
+
+        <div class="example-figure compact">
+            <img src="images/handset-blue-info-screen.png" alt="Floorsense handset showing the blue Floorsight Handset info screen, listing hardware, boot and build version, serial number and radio version, with an X (close) icon top-left and a gear (settings) icon top-right">
+        </div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The handset is showing the blue "Floorsight Handset" info screen (hardware, boot and build version, serial number, radio version) instead of its normal home screen.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="he-1">
+                <label for="he-1"><strong>Resolution:</strong> Tap the X icon in the top-left corner to close the info screen and return to the home screen.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-screensaver')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-bootloader')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2c: STUCK ON THE BOOTLOADER SCREEN -->
+      <div id="step-handset-bootloader" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('handset-error');return false;">&larr; Handset/Display Screen Issues</a>
+
+        <div class="example-figure compact">
+            <img src="images/handset-bootloader-reboot.png" alt="Floorsense handset bootloader screen with the Reboot option highlighted in a red box">
+        </div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The handset is showing the bootloader screen (hardware, application and radio details) instead of starting up normally.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="he-2">
+                <label for="he-2"><strong>Resolution:</strong> Tap the "Reboot" option on the bootloader screen.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-blue-info')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-x-screen')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2d: STUCK ON AN "X" SCREEN -->
+      <div id="step-handset-x-screen" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('handset-error');return false;">&larr; Handset/Display Screen Issues</a>
+
+        <div class="example-figure compact">
+            <img src="images/handset-x-screen.png" alt="Floorsense handset showing a large white X on its screen">
+        </div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The handset shows a large "X" and won't respond — this means it's disconnected or not configured.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="he-3">
+                <label for="he-3"><strong>Resolution — Power Cycle:</strong> Disconnect the power jack from the back of the handset, wait a few seconds, then plug it back in and wait for it to restart.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+        <div class="example-figure compact">
+            <img src="images/handset-power-jack.png" alt="Close-up of the round power jack and cable that plugs into the back of the handset">
+            <div class="caption">The power jack connects to the back of the handset.</div>
+        </div>
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the handset still shows an "X" screen after power cycling, email <a href="mailto:support@smartalock.com">support@smartalock.com</a> with the site name, desk number, and the troubleshooting steps already completed.
+        </div>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-bootloader')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next disabled">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 3: MOTION SENSOR -->
+      <div id="step-motion-sensor" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="example-figure compact">
+            <img src="images/admin-desk-analytics-demo.gif" alt="Animated demo of the admin portal Desk Analytics Charts View: clicking a desk opens its Desk Statistics Overview, showing Desk Key, Total Usage, and the Inuse / Available / Occupied / Reserved / Unconfirmed ratios">
+            <div class="caption">Desk Analytics Charts View — selecting a desk shows its full usage breakdown, including Total Usage and the individual occupancy ratios.</div>
+        </div>
+        <div class="subhead">Find Malfunctioning Sensors</div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> Sensors that may require attention will show very few or no readings over a long period of time. A desk stuck at 0% usage, or just as alarming, stuck at 100% usage in the latest report, is a particularly strong signal.
+        </div>
+
+        <div class="subhead">Option 1: Floorplan Heatmap (Desk Analytics)</div>
+        <div class="example-figure">
+            <img src="images/admin-floorplan-heatmap.png" alt="Admin portal Floorplan View showing a heatmap of a floor plan. Desks are shaded by occupancy percentage on a 0-100 scale, and a tooltip over one highlighted desk reads 'G.10 usage: 30%'">
+            <div class="caption">The Floorplan View heatmap, found under Analytics &rarr; Desk Analytics in the admin portal — desk shading shows occupancy, and hovering a desk shows its exact reading.</div>
+        </div>
+        <ol class="step-list">
+            <li><strong>Open Desk Analytics:</strong> As an administrator, log into the admin portal and go to the Analytics tab, then the Desk Analytics submenu. Use the toggle button in the top-right corner to switch from Charts View to Floorplan View.</li>
+            <li><strong>Select a Floor:</strong> As with Charts View, choose the floor to inspect from the left pane.</li>
+            <li><strong>Choose the Period:</strong> Use the Daily, Weekly, or Monthly tabs in the top-left to set the reporting period.</li>
+            <li><strong>Read the Heatmap:</strong> Each desk is shaded by its occupancy percentage. Hover over a desk to update the indicator at the top of the heatmap — this changes both the occupancy percentage shown and the colour intensity, with a darker colour indicating higher occupancy.</li>
+        </ol>
+
+        <div class="subhead">Option 2: Desks Motion Sensor Readings Report</div>
+        <div class="example-figure compact">
+            <img src="images/floorsense-stats-reports-nav.png" alt="Floorsense Stats & Reports menu open in the admin portal, listing report categories including 'Floorsense - Per User / Per Desk Spreadsheet Reports', highlighted, with the Reports landing page visible behind it">
+            <div class="caption">Floorsense Stats &amp; Reports &rarr; Floorsense - Per User / Per Desk Spreadsheet Reports.</div>
+        </div>
+        <ol class="step-list">
+            <li>As an administrator, log into the admin portal and go to the Analytics tab, then select the Reports submenu.</li>
+            <li>Open it via Floorsense Stats &amp; Reports &rarr; Floorsense - Per User / Per Desk Spreadsheet Reports.</li>
+            <li>Search for "Desks Motion Sensor Readings Report".</li>
+        </ol>
+        <div class="example-figure compact">
+            <img src="images/desks-motion-sensor-report-form.png" alt="Desks Motion Sensor Readings Report form, with fields to select a period and an optional floor, and a Download button">
+            <div class="caption">The report form — set a date range (and optionally a floor), then Download.</div>
+        </div>
+        <div class="callout callout-info">
+            <strong>Note:</strong> There's currently no automatic notification when a sensor needs attention, so it's worth checking this report periodically rather than waiting for a complaint.
+        </div>
+
+        <div class="subhead">Possible Reasons for No Readings</div>
+        <div class="callout callout-info">
+            If a sensor has no readings in the report, it could mean:
+            <ul>
+                <li>The desk hasn't been used during the period you've selected.</li>
+                <li>The sensor is disconnected or not fully plugged in.</li>
+                <li>The sensor needs to be rebooted (unplug and plug back in).</li>
+                <li>The sensor may be faulty (rare).</li>
+                <li>Readings exist but are consistently too low to count as occupied (less than 50) — the sensor is likely mounted too far from the user and will need to be reinstalled closer.</li>
+            </ul>
+        </div>
+
+        <div class="example-figure compact">
+            <img src="images/motion-sensor-audio-jack.png" alt="Close-up of a motion sensor puck with its audio-jack-style cable connector circled in red, showing where it plugs into the side of the sensor">
+            <div class="caption">The audio jack connector on the motion sensor — this is what needs to be fully unplugged and reseated.</div>
+        </div>
+
+        <ol class="step-list">
+            <li><strong>Resolution — Reseat the Audio Jack:</strong> Unplug the sensor's audio jack completely, then reconnect it all the way in — there should be no visible gap at the connector. Stay at the desk for 3–5 minutes afterward to give the sensor time to reconnect and start reporting again.</li>
+            <li><strong>Verify:</strong> Check the desk Event Log to confirm the sensor is reporting again, or note the desk number and have your Floorsense administrator verify it afterward.</li>
+        </ol>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> After reseating the audio jack, the sensor resumes reporting readings within a few minutes and the desk event log shows normal activity.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the sensor still shows few or no readings after reseating the audio jack and waiting the full 3–5 minutes, escalate to Floorsense technical support with the site name, desk number, and the Desks Motion Sensor Readings Report showing the affected sensor.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-error')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-diagnostics')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 4: HANDSET DIAGNOSTICS -->
+      <div id="step-handset-diagnostics" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> Offline pucks/handsets are visually represented on the floor plan as pale/transparent icons, making them easy to identify at a glance.
+        </div>
+        <div class="example-figure compact">
+            <img src="images/offline-puck-floorplan.png" alt="Floor plan diagram with desk icons. Most desks show a solid green or orange dot, but one desk in the top-left is circled in red and shown as a pale, washed-out green dot to indicate it is offline">
+            <div class="caption">An offline puck/handset shows as a pale, washed-out icon on the floor plan (circled above) instead of the normal solid colour.</div>
+        </div>
+
+        <div class="subhead">Offline Desks Report</div>
+        <div class="example-figure compact">
+            <img src="images/floorsense-stats-reports-nav.png" alt="Floorsense Stats & Reports menu open in the admin portal, listing report categories including 'Floorsense - Per User / Per Desk Spreadsheet Reports', highlighted, with the Reports landing page visible behind it">
+            <div class="caption">Floorsense Stats &amp; Reports &rarr; Floorsense - Per User / Per Desk Spreadsheet Reports.</div>
+        </div>
+        <ol class="step-list">
+            <li>As an administrator, log into the admin portal and go to Settings, then System Configuration.</li>
+            <li>On the page that opens, select Stats &amp; Reports, then Floorsense - Per User / Per Desk Spreadsheet Reports.</li>
+            <li>Look for the "Offline Desks" report — it returns a table of all desks and their current status (online / offline).</li>
+        </ol>
+        <div class="example-figure compact">
+            <img src="images/offline-desks-report.png" alt="Offline Desks - all locations (current status) report entry in the admin portal, described as returning a table with all desks and their status, online or offline, with a Download button">
+            <div class="caption">The Offline Desks report — download it to see the current online/offline status of every desk.</div>
+        </div>
+
+        <ol class="step-list">
+            <li><strong>Resolution — Reconnect Cables:</strong> Reconnect all cables connected to the puck/handset. Unplug each cable, then plug it back in firmly, checking for any loose connections or visible damage to the cables or connectors.</li>
+        </ol>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The puck/handset reconnects and its icon on the floor plan returns to its normal solid colour, and the Offline Desks report shows it as online.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the puck/handset still shows offline after reconnecting all cables and checking for damage, escalate to Floorsense technical support with the site name, desk number, and the Offline Desks report showing the affected desk.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('motion-sensor')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next disabled">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- RESOLVED STEP -->
+      <div id="step-resolved" class="wizard-step">
+        <div class="callout callout-success">
+            <strong>Success:</strong> The issue has been addressed or diagnostic steps completed.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="action-bar" id="actionBar">
+    <div class="panel-inner">
+      <div class="save-note" id="saveNote"></div>
+      <div style="display:flex; gap:10px;">
+        <button class="ghost" id="ghostBtn" type="button" onclick="goToStep('select')">All issues</button>
+        <button class="primary" id="primaryBtn" type="button" onclick="goToStep('resolved')">Issue Resolved</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-foot">Smartalock Support Wizard</footer>
+
+</main>
+
+<script src="wizard-data.js"></script>
+<script>
+    const PAGE_KEY = 'Desk';
+
+    function updateChecklistNote(stepId) {
+        const note = document.getElementById('saveNote');
+        const panel = document.getElementById('step-' + stepId);
+        const boxes = panel ? panel.querySelectorAll('.check-item input[type="checkbox"]') : [];
+        if (!boxes.length) { note.textContent = ''; return; }
+        const checked = Array.from(boxes).filter(b => b.checked).length;
+        note.textContent = checked + ' of ' + boxes.length + ' steps checked';
+    }
+
+    const STEP_TITLES = {
+        'select': { title: 'What\'s the reported issue?', sub: 'Select a symptom below to start guided desk diagnostics.' },
+        'desks-offline': { title: 'Desks Periodically Offline', sub: 'If desks have gone offline, restarting the radio antenna is often enough to restore communication.' },
+        'handset-error': { title: 'Handset/Display Screen Issues', sub: 'Select what\'s currently showing on the handset\'s screen below to see its fix.' },
+        'handset-screensaver': { title: 'Screen Saver / Inactive Display', sub: 'Wake the handset from its screen saver to return it to the home screen.' },
+        'handset-blue-info': { title: 'Stuck on the Blue Info Screen', sub: 'Match this against the blue info screen, then follow the fix below.' },
+        'handset-bootloader': { title: 'Stuck on the Bootloader Screen', sub: 'Match this against the bootloader screen, then follow the fix below.' },
+        'handset-x-screen': { title: 'Stuck on an "X" Screen', sub: 'Match this against the "X" screen, then follow the fix below.' },
+        'motion-sensor': { title: 'Motion Sensor Diagnostics', sub: 'Check desk occupancy data to identify malfunctioning sensors, using either the Floorplan Heatmap or the Desks Motion Sensor Readings Report below.' },
+        'handset-diagnostics': { title: 'Handset Diagnostics', sub: 'The admin portal also provides reports for identifying and diagnosing offline or malfunctioning pucks, with detailed status, performance and historical data.' },
+        'resolved': { title: 'Troubleshooting Complete' }
+    };
+    const topFrameH1 = document.querySelector('#topFrameHeading h1.hero-title');
+    const topFrameSub = document.querySelector('#topFrameHeading p.sub');
+
+    function goToStep(stepId) {
+        if (window.STW) STW.logEvent({ type: 'visit', page: PAGE_KEY, step: stepId });
+        document.body.classList.toggle('on-select', stepId === 'select');
+        document.body.classList.toggle('on-handset-error', stepId === 'handset-error');
+        document.querySelectorAll('.wizard-step').forEach(step => {
+            step.classList.remove('active');
+        });
+        const target = document.getElementById('step-' + stepId);
+        if (target) {
+            target.classList.add('active');
+        }
+        const stepInfo = STEP_TITLES[stepId];
+        topFrameH1.textContent = stepInfo ? stepInfo.title : '';
+        topFrameSub.textContent = (stepInfo && stepInfo.sub) ? stepInfo.sub : '';
+        window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+
+        const actionBar = document.getElementById('actionBar');
+        const ghostBtn = document.getElementById('ghostBtn');
+        const primaryBtn = document.getElementById('primaryBtn');
+
+        if (stepId === 'select') {
+            actionBar.classList.remove('show');
+            if (!previewHovering) startRotation();
+            stopSubRotation();
+        } else if (stepId === 'resolved') {
+            stopRotation();
+            stopSubRotation();
+            actionBar.classList.add('show');
+            ghostBtn.hidden = true;
+            primaryBtn.textContent = 'Return to Start';
+            primaryBtn.onclick = function () { goToStep('select'); };
+            document.getElementById('saveNote').textContent = '';
+        } else {
+            stopRotation();
+            actionBar.classList.add('show');
+            ghostBtn.hidden = false;
+            ghostBtn.textContent = 'All issues';
+            ghostBtn.onclick = function () { goToStep('select'); };
+            primaryBtn.textContent = 'Issue Resolved';
+            primaryBtn.onclick = function () {
+                if (window.STW) STW.logEvent({ type: 'resolved', page: PAGE_KEY, step: stepId });
+                goToStep('resolved');
+            };
+            updateChecklistNote(stepId);
+            if (stepId === 'handset-error') {
+                if (!previewHoveringSub) startSubRotation();
+            } else {
+                stopSubRotation();
+            }
+        }
+    }
+
+    document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function (cb) {
+        cb.addEventListener('change', function () {
+            this.closest('.check-item').classList.toggle('answered', this.checked);
+            const activeStep = document.querySelector('.wizard-step.active');
+            if (activeStep) updateChecklistNote(activeStep.id.replace('step-', ''));
+        });
+    });
+
+    /* ---------- issue image preview / slideshow ---------- */
+    /* Issues without a real example image yet are intentionally left out of ISSUE_PREVIEWS —
+       hovering/rotating for those falls back to the "no example image yet" placeholder, which
+       shows the issue's title via ALL_ISSUE_TITLES. Add an entry here (and to ROTATION_ORDER
+       further down if it should auto-rotate with a real image) as soon as a screenshot exists
+       for an issue. */
+    const ISSUE_PREVIEWS = {
+        'desks-offline': { title: 'Desks Periodically Offline', image: 'images/radio-antenna-unit.png', alt: 'Floorsight Display Radio Unit, a small black device with a USB cable plugged into its side' },
+        'handset-error': { title: 'Handset/Display Screen Issues', image: 'images/handset-x-screen.png', alt: 'Floorsense handset showing a large white X on its screen' },
+        'motion-sensor': { title: 'Motion Sensor Diagnostics', image: 'images/admin-desk-analytics-demo.gif', alt: 'Animated demo of the admin portal Desk Analytics Charts View: clicking a desk opens its Desk Statistics Overview showing usage ratios' },
+        'handset-diagnostics': { title: 'Handset Diagnostics', image: 'images/offline-puck-floorplan.png', alt: 'Floor plan diagram showing an offline puck as a pale, washed-out icon, circled in red' },
+        'vpn-restart': { title: 'No Mapping / Site Unreachable', image: 'images/vpn-site-floorplan.png', alt: 'Office floor plan diagram showing the desk and room layout for the site' }
+    };
+    const ROTATION_ORDER = ['desks-offline', 'handset-error', 'motion-sensor', 'handset-diagnostics', 'vpn-restart'];
+    /* 'vpn-restart' is an external link into the Locker System wizard rather than a goToStep()
+       target on this page — see EXTERNAL_ISSUE_LINKS below, which activatePreviewTarget() checks
+       before falling back to goToStep(). */
+    const EXTERNAL_ISSUE_LINKS = {
+        'vpn-restart': 'Smartalock_Interactive_Troubleshooting_Wizard.html?issue=vpn-restart'
+    };
+
+    const previewPanel = document.getElementById('previewPanel');
+    const previewImg = document.getElementById('previewImg');
+    const previewEmpty = document.getElementById('previewEmpty');
+    const previewCaption = document.getElementById('previewCaption');
+    let previewHovering = false;
+    let previewTargetIssue = ROTATION_ORDER[0];
+    let rotationTimer = null;
+    let rotationIndex = 0;
+
+    function renderPreview(issueId) {
+        const data = ISSUE_PREVIEWS[issueId];
+        previewTargetIssue = issueId;
+        if (!data) {
+            previewPanel.classList.add('empty');
+            previewEmpty.textContent = ALL_ISSUE_TITLES[issueId] || '';
+            previewCaption.textContent = 'No example image yet — tap to open this issue';
+            return;
+        }
+        previewPanel.classList.remove('empty');
+        previewImg.classList.add('fading');
+        window.setTimeout(function () {
+            previewImg.src = data.image;
+            previewImg.alt = data.alt;
+            previewCaption.textContent = data.title;
+            previewImg.classList.remove('fading');
+        }, 160);
+    }
+
+    const ALL_ISSUE_TITLES = {
+        'desks-offline': 'Desks Periodically Offline',
+        'handset-error': 'Handset/Display Screen Issues',
+        'motion-sensor': 'Motion Sensor Diagnostics',
+        'handset-diagnostics': 'Handset Diagnostics',
+        'vpn-restart': 'No Mapping / Site Unreachable'
+    };
+
+    function startRotation() {
+        stopRotation();
+        rotationTimer = window.setInterval(function () {
+            rotationIndex = (rotationIndex + 1) % ROTATION_ORDER.length;
+            renderPreview(ROTATION_ORDER[rotationIndex]);
+        }, 3200);
+    }
+    function stopRotation() {
+        if (rotationTimer) window.clearInterval(rotationTimer);
+        rotationTimer = null;
+    }
+
+    document.querySelectorAll('#step-select .dcard[data-issue]').forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+            previewHovering = true;
+            stopRotation();
+            renderPreview(card.dataset.issue);
+        });
+        card.addEventListener('focus', function () {
+            previewHovering = true;
+            stopRotation();
+            renderPreview(card.dataset.issue);
+        });
+        card.addEventListener('mouseleave', function () {
+            previewHovering = false;
+            if (document.getElementById('step-select').classList.contains('active')) startRotation();
+        });
+        card.addEventListener('blur', function () {
+            previewHovering = false;
+            if (document.getElementById('step-select').classList.contains('active')) startRotation();
+        });
+    });
+
+    function activatePreviewTarget() {
+        if (!previewTargetIssue) return;
+        if (EXTERNAL_ISSUE_LINKS[previewTargetIssue]) {
+            window.location.href = EXTERNAL_ISSUE_LINKS[previewTargetIssue];
+            return;
+        }
+        goToStep(previewTargetIssue);
+    }
+    previewPanel.addEventListener('click', activatePreviewTarget);
+    previewPanel.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activatePreviewTarget(); }
+    });
+
+    /* ---------- Handset/Display Screen Issues sub-hub preview / slideshow ---------- */
+    const SUB_ISSUE_PREVIEWS = {
+        'handset-screensaver': { title: 'Screen Saver / Inactive Display', image: 'images/handset-reboot-demo-poster.png', alt: 'Floorsense handset screen saver, prompting a tap to wake it and return to the home screen' },
+        'handset-blue-info': { title: 'Stuck on the Blue Info Screen', image: 'images/handset-blue-info-screen.png', alt: 'Floorsense handset showing the blue Floorsight Handset info screen' },
+        'handset-bootloader': { title: 'Stuck on the Bootloader Screen', image: 'images/handset-bootloader-reboot.png', alt: 'Floorsense handset bootloader screen with the Reboot option highlighted in a red box' },
+        'handset-x-screen': { title: 'Stuck on an "X" Screen', image: 'images/handset-x-screen.png', alt: 'Floorsense handset showing a large white X on its screen' }
+    };
+    const SUB_ROTATION_ORDER = ['handset-screensaver', 'handset-blue-info', 'handset-bootloader', 'handset-x-screen'];
+    const ALL_SUB_ISSUE_TITLES = {
+        'handset-screensaver': 'Screen Saver / Inactive Display',
+        'handset-blue-info': 'Stuck on the Blue Info Screen',
+        'handset-bootloader': 'Stuck on the Bootloader Screen',
+        'handset-x-screen': 'Stuck on an "X" Screen'
+    };
+
+    const previewPanelSub = document.getElementById('previewPanelSub');
+    const previewImgSub = document.getElementById('previewImgSub');
+    const previewEmptySub = document.getElementById('previewEmptySub');
+    const previewCaptionSub = document.getElementById('previewCaptionSub');
+    let previewHoveringSub = false;
+    let previewTargetSubIssue = SUB_ROTATION_ORDER[0];
+    let subRotationTimer = null;
+    let subRotationIndex = 0;
+
+    function renderSubPreview(issueId) {
+        const data = SUB_ISSUE_PREVIEWS[issueId];
+        previewTargetSubIssue = issueId;
+        if (!data) {
+            previewPanelSub.classList.add('empty');
+            previewEmptySub.textContent = ALL_SUB_ISSUE_TITLES[issueId] || '';
+            previewCaptionSub.textContent = 'No example image yet — tap to open this issue';
+            return;
+        }
+        previewPanelSub.classList.remove('empty');
+        previewImgSub.classList.add('fading');
+        window.setTimeout(function () {
+            previewImgSub.src = data.image;
+            previewImgSub.alt = data.alt;
+            previewCaptionSub.textContent = data.title;
+            previewImgSub.classList.remove('fading');
+        }, 160);
+    }
+
+    function startSubRotation() {
+        stopSubRotation();
+        subRotationTimer = window.setInterval(function () {
+            subRotationIndex = (subRotationIndex + 1) % SUB_ROTATION_ORDER.length;
+            renderSubPreview(SUB_ROTATION_ORDER[subRotationIndex]);
+        }, 3200);
+    }
+    function stopSubRotation() {
+        if (subRotationTimer) window.clearInterval(subRotationTimer);
+        subRotationTimer = null;
+    }
+
+    document.querySelectorAll('#step-handset-error .dcard[data-sub-issue]').forEach(function (card) {
+        card.addEventListener('mouseenter', function () {
+            previewHoveringSub = true;
+            stopSubRotation();
+            renderSubPreview(card.dataset.subIssue);
+        });
+        card.addEventListener('focus', function () {
+            previewHoveringSub = true;
+            stopSubRotation();
+            renderSubPreview(card.dataset.subIssue);
+        });
+        card.addEventListener('mouseleave', function () {
+            previewHoveringSub = false;
+            if (document.getElementById('step-handset-error').classList.contains('active')) startSubRotation();
+        });
+        card.addEventListener('blur', function () {
+            previewHoveringSub = false;
+            if (document.getElementById('step-handset-error').classList.contains('active')) startSubRotation();
+        });
+    });
+
+    function activateSubPreviewTarget() {
+        if (previewTargetSubIssue) goToStep(previewTargetSubIssue);
+    }
+    previewPanelSub.addEventListener('click', activateSubPreviewTarget);
+    previewPanelSub.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activateSubPreviewTarget(); }
+    });
+
+    renderSubPreview(SUB_ROTATION_ORDER[0]);
+    renderPreview(ROTATION_ORDER[0]);
+
+    /* ---------- per-issue notes/comment box ---------- */
+    (function setupCommentBoxes() {
+        function debounce(fn, wait) {
+            let t;
+            return function () {
+                const args = arguments, ctx = this;
+                clearTimeout(t);
+                t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+            };
+        }
+        document.querySelectorAll('.wizard-step').forEach(function (step) {
+            const stepId = step.id.replace('step-', '');
+            if (stepId === 'select' || stepId === 'resolved') return;
+            const wrap = document.createElement('div');
+            wrap.className = 'comment-box';
+            wrap.innerHTML =
+                '<div class="comment-box-label">Notes <span class="comment-box-optional">(optional)</span></div>' +
+                '<textarea class="comment-box-input" placeholder="Add a note about this issue — what worked, site specifics, who to contact..."></textarea>' +
+                '<div class="comment-box-status">&nbsp;</div>';
+            const nav = step.querySelector('.page-nav');
+            if (nav) { step.insertBefore(wrap, nav); } else { step.appendChild(wrap); }
+
+            const textarea = wrap.querySelector('.comment-box-input');
+            const status = wrap.querySelector('.comment-box-status');
+            if (window.STW) textarea.value = STW.getComment(PAGE_KEY, stepId);
+            const save = debounce(function () {
+                if (window.STW) STW.setComment(PAGE_KEY, stepId, textarea.value);
+                status.textContent = 'Saved';
+                window.setTimeout(function () { status.textContent = ' '; }, 1500);
+            }, 500);
+            textarea.addEventListener('input', save);
+        });
+    })();
+
+    goToStep('select');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Troubleshooting Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    --ink: #1D1D1F;
+    --ink-soft: #6E6E73;
+    --header-grey: #48484A;
+    --paper: #FFFFFF;
+    --paper-soft: #F5F5F7;
+    --line: #D2D2D7;
+    --accent: #0071E3;
+    --accent-wash: #E8F1FC;
+    --accent-deep: #0058B0;
+    --warning: #D98E00;
+    --violet: #7C3AED;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --panel-maxw: 860px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-main { min-height: 100vh; display: flex; flex-direction: column; }
+  .panel-inner { max-width: var(--panel-maxw); margin: 0 auto; width: 100%; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .top-frame {
+    position: sticky; top: 0; z-index: 50; background: var(--paper);
+    padding: 16px 0; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo { height: 20px; width: auto; display: block; flex-shrink: 0; }
+  .brand-tagline {
+    color: var(--ink-soft); font-family: var(--font-text); font-weight: 500; font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase; padding-left: 12px; border-left: 1px solid var(--line);
+  }
+  .top-frame-heading { display: block; margin-top: 32px; text-align: left; }
+  .top-frame-heading h1.hero-title {
+    font-family: var(--font-display); font-weight: 200; letter-spacing: -0.5px; line-height: 1.12;
+    color: #102A43; font-size: clamp(37.5px, 5.25vw, 50.6px); margin: 0 0 8px;
+  }
+  .top-frame-heading p.sub { font-size: 19.5px; line-height: 1.5; color: var(--ink-soft); margin: 0; max-width: none; }
+
+  .panel-scroll { flex: 1; padding: 32px 0 48px; }
+
+  /* ---------- system picker cards ---------- */
+  .decision-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; margin-top: 8px; }
+  @media (max-width: 560px) { .decision-grid { grid-template-columns: 1fr; } }
+
+  .dcard {
+    background: #F1F1F1; border: none; border-radius: var(--radius-lg);
+    padding: 26px 26px 28px; position: relative;
+    transition: transform .25s, background-color .25s, outline .25s;
+    display: flex; flex-direction: column; cursor: pointer; text-align: left;
+    font-family: var(--font-text); outline: 0 solid transparent;
+    text-decoration: none; color: inherit;
+  }
+  .dcard:hover { transform: translate(-3px, -3px); background: #fff; outline: 1.5px solid #000; }
+  .dcard-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+  .dcard h3 { font-family: var(--font-display); font-weight: 500; font-size: 20px; margin: 0; color: var(--header-grey); line-height: 1.3; }
+  .dcard .dcard-sub { font-size: 13.5px; color: var(--ink-soft); margin-top: 8px; line-height: 1.55; }
+  .dcard .dcard-icon {
+    width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center;
+    background: #fff; border: 1px solid var(--line); flex-shrink: 0;
+  }
+  .dcard .dcard-icon svg { width: 25px; height: 25px; stroke: var(--header-grey); }
+
+  .badge-pill {
+    font-size: 8.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px;
+    border-radius: 100px; font-weight: 700; white-space: nowrap; flex-shrink: 0; background: #fff;
+  }
+  .badge-pill.badge-blue { color: var(--accent); border: 1.5px solid var(--accent); }
+  .badge-pill.badge-amber { color: var(--warning); border: 1.5px solid var(--warning); }
+  .badge-pill.badge-violet { color: var(--violet); border: 1.5px solid var(--violet); }
+  .badge-pill.badge-grey { color: var(--ink-soft); border: 1.5px solid var(--line); }
+
+  .dcard.dcard-placeholder { cursor: default; }
+  .dcard.dcard-placeholder:hover { transform: none; background: #F1F1F1; outline: none; }
+  .dcard.dcard-placeholder .dcard-icon { opacity: 0.6; }
+  .dcard.dcard-placeholder h3 { color: var(--ink-soft); }
+
+  footer.site-foot { text-align: center; padding: 22px 0 14px; font-size: 11.5px; font-weight: 300; color: var(--ink-soft); }
+  footer.site-foot .stats-link { color: var(--ink-soft); text-decoration: underline; margin-left: 10px; }
+  footer.site-foot .stats-link:hover { color: var(--accent); }
+</style>
+</head>
+<body>
+
+<main class="page-main">
+
+  <div class="top-frame">
+    <div class="panel-inner">
+      <div class="brand">
+        <img class="brand-logo" src="images/smartalock-logo.png" alt="Smartalock">
+        <span class="brand-tagline">Troubleshooting Wizard</span>
+      </div>
+      <div class="top-frame-heading">
+        <h1 class="hero-title">What would you like help with?</h1>
+        <p class="sub">Choose which system you're troubleshooting to get guided diagnostics.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-scroll">
+    <div class="panel-inner">
+      <div class="decision-grid">
+        <a class="dcard" href="Smartalock_Interactive_Troubleshooting_Wizard.html">
+          <div class="dcard-top">
+            <div class="dcard-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/><line x1="12" y1="15" x2="12" y2="17"/></svg>
+            </div>
+            <span class="badge-pill badge-blue">Smartalock</span>
+          </div>
+          <h3>Locker Booking System</h3>
+          <div class="dcard-sub">Locker banks, kiosk displays, card readers, door latches and on-site network/VPN issues.</div>
+        </a>
+        <a class="dcard" href="Floorsense_Desk_Troubleshooting_Wizard.html">
+          <div class="dcard-top">
+            <div class="dcard-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"/><line x1="8" y1="20" x2="16" y2="20"/><line x1="12" y1="16" x2="12" y2="20"/></svg>
+            </div>
+            <span class="badge-pill badge-amber">Floorsense</span>
+          </div>
+          <h3>Desk Booking System</h3>
+          <div class="dcard-sub">Desk booking handsets, occupancy/motion sensors, and desk or site connectivity issues.</div>
+        </a>
+        <a class="dcard" href="Meeting_Room_Troubleshooting_Wizard.html">
+          <div class="dcard-top">
+            <div class="dcard-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
+            </div>
+            <span class="badge-pill badge-amber">Floorsense</span>
+          </div>
+          <h3>Meeting Room Booking System</h3>
+          <div class="dcard-sub">Tablet issues, blue screen errors and kiosk-unreachable diagnostics for meeting room booking panels.</div>
+        </a>
+        <div class="dcard dcard-placeholder" aria-disabled="true">
+          <div class="dcard-top">
+            <div class="dcard-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-3a2 2 0 0 1 2-2h1l1.5-3.5A2 2 0 0 1 10.3 6h3.4a2 2 0 0 1 1.8 1.5L17 11h1a2 2 0 0 1 2 2v3"/><path d="M4 16h16"/><circle cx="7.5" cy="16.5" r="1.5"/><circle cx="16.5" cy="16.5" r="1.5"/></svg>
+            </div>
+            <span class="badge-pill badge-grey">Coming Soon</span>
+          </div>
+          <h3>Parking Booking System</h3>
+          <div class="dcard-sub">Gate, permit and parking bay diagnostics — coming soon.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-foot">Smartalock Support Wizard <a class="stats-link" href="Summary.html">Summary</a></footer>
+
+</main>
+
+<script src="wizard-data.js"></script>
+<script>
+  if (window.STW) STW.logEvent({ type: 'visit', page: 'Hub', step: 'hub' });
+</script>
+
+</body>
+</html>

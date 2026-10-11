@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Floorsense Mobile App — Registration & Installation Guide</title>
+<style>
+:root{
+  --navy:#17324d; --blue:#1769aa; --cyan:#18a6d9; --ink:#263746;
+  --muted:#667786; --line:#dfe7ed; --bg:#f6f9fb; --card:#fff;
+  --success:#087f5b; --warn:#fff7e6; --danger:#b42318;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.page{max-width:1040px;margin:0 auto;padding:32px 22px 64px}
+.crumb{display:flex;align-items:center;gap:8px;margin:0 0 14px;font-size:14px}
+.crumb a{color:var(--blue);text-decoration:none;font-weight:600}
+.crumb a:hover{text-decoration:underline}
+.hero{background:linear-gradient(135deg,#17324d,#245f86);color:#fff;border-radius:22px;padding:42px 44px;margin-bottom:24px;box-shadow:0 12px 35px rgba(23,50,77,.12)}
+.hero h1{font-size:clamp(30px,5vw,48px);line-height:1.08;margin:0 0 12px}
+.hero p{margin:0;max-width:720px;color:#e7f4fb;font-size:18px}
+.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.badge{padding:7px 11px;border:1px solid rgba(255,255,255,.28);border-radius:999px;font-size:13px}
+.toc{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin:0 0 28px}
+.toc strong{display:block;margin-bottom:8px}.toc a{color:var(--blue);text-decoration:none;margin-right:18px}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:30px;margin:22px 0;box-shadow:0 4px 18px rgba(23,50,77,.04)}
+h2{color:var(--navy);font-size:28px;margin:0 0 18px}
+h3{color:var(--navy);font-size:20px;margin:28px 0 10px}
+.step{display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start;margin:20px 0}
+.num{width:38px;height:38px;border-radius:50%;background:#e7f5fb;color:var(--blue);font-weight:700;display:grid;place-items:center}
+.callout{border-left:4px solid var(--cyan);background:#eef9fd;padding:16px 18px;border-radius:10px;margin:18px 0}
+.warning{border-left-color:#e0a100;background:var(--warn)}
+.checks{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:16px 0}
+.check{border:1px solid var(--line);border-radius:12px;padding:14px;background:#fbfdfe}
+.check b{display:block;margin-bottom:3px;color:var(--navy)}
+.figure{margin:18px 0;text-align:center}
+.figure img{max-width:100%;height:auto;border-radius:12px}
+.mockup{display:inline-block}
+.mockup svg{width:220px;max-width:100%;height:auto;display:block}
+.illus-tag{display:block;font-size:11px;color:var(--muted);font-style:italic;margin-top:8px}
+.caption{font-size:13px;color:var(--muted);margin-top:7px}
+.link{display:inline-block;background:var(--blue);color:#fff!important;text-decoration:none;padding:10px 15px;border-radius:9px;font-weight:600}
+.platforms{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.platform{border:1px solid var(--line);border-radius:14px;padding:20px}
+.platform h3{margin-top:0}
+table{width:100%;border-collapse:collapse}
+th,td{padding:14px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:#f3f7fa;color:var(--navy)}
+tr:last-child td{border-bottom:0}
+footer{color:var(--muted);font-size:13px;text-align:center;margin-top:28px}
+
+/* --- interactive troubleshooting picker --- */
+.symptom-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin:18px 0}
+.symptom-btn{text-align:left;border:1px solid var(--line);background:#fbfdfe;border-radius:12px;padding:16px 18px;font:inherit;font-weight:600;color:var(--navy);cursor:pointer;transition:border-color .15s,box-shadow .15s,transform .1s}
+.symptom-btn:hover{border-color:var(--blue);box-shadow:0 4px 14px rgba(23,50,77,.08);transform:translateY(-1px)}
+.symptom-btn .sub{display:block;margin-top:4px;font-weight:400;font-size:13px;color:var(--muted)}
+.fix-panel{border:1px solid var(--line);border-radius:14px;padding:24px;background:#fbfdfe}
+.fix-panel h4{margin:0 0 14px;color:var(--navy);font-size:19px}
+.fix-panel ol,.fix-panel ul{margin:10px 0 10px 20px;padding:0}
+.fix-panel li{margin:6px 0}
+.branch-q{background:#eef9fd;border:1px solid #cfe9f3;border-radius:12px;padding:16px 18px;margin:14px 0}
+.branch-q p{margin:0 0 12px;font-weight:600;color:var(--navy)}
+.branch-actions{display:flex;gap:10px;flex-wrap:wrap}
+.branch-actions button{border:1px solid var(--blue);background:#fff;color:var(--blue);font:inherit;font-weight:600;padding:9px 16px;border-radius:8px;cursor:pointer}
+.branch-actions button:hover{background:var(--blue);color:#fff}
+.link-btn{background:none;border:none;padding:0;color:var(--blue);font:inherit;font-weight:600;text-decoration:underline;cursor:pointer}
+.back-btn{display:inline-flex;align-items:center;gap:6px;margin-top:18px;border:none;background:none;color:var(--muted);font:inherit;font-size:14px;cursor:pointer;padding:0}
+.back-btn:hover{color:var(--blue)}
+.still-stuck{margin-top:22px}
+@media(max-width:700px){.hero{padding:30px 24px}.platforms{grid-template-columns:1fr}section{padding:22px}.step{grid-template-columns:36px 1fr}.num{width:34px;height:34px}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<div class="crumb"><a href="Smartalock_Knowledge_Base.html">&larr; Knowledge Base</a></div>
+
+<header class="hero">
+  <h1>Floorsense Mobile App</h1>
+  <p>Registration, installation and first-use guide for users without Single Sign-On (SSO).</p>
+  <div class="meta">
+    <span class="badge">Non-SSO users</span>
+    <span class="badge">Mobile app setup</span>
+    <span class="badge">Updated 20 March 2026</span>
+  </div>
+</header>
+
+<nav class="toc" aria-label="Contents">
+  <strong>Quick navigation</strong>
+  <a href="#register">1. Register</a>
+  <a href="#install">2. Install the app</a>
+  <a href="#use">3. Using the app</a>
+  <a href="#troubleshooting">4. Troubleshooting</a>
+</nav>
+
+<section id="register">
+<h2>1. Register for Floorsense</h2>
+<p>Start with the activation email sent to your work email address.</p>
+
+<div class="step"><div class="num">1</div><div>
+  <strong>Open your Floorsense Service email.</strong>
+  <p>Find the email from the Floorsense Service and select your <strong>unique app activation link</strong>.</p>
+  <div class="figure"><div class="mockup" role="img" aria-label="Mock-up of an activation email in an inbox, with the Floorsense Service message highlighted and an Activate button"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+
+<text x="30" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Mail</text>
+<rect x="12" y="96" width="276" height="88" fill="#ffffff"/><line x1="12" y1="184" x2="288" y2="184" stroke="#dfe7ed"/><circle cx="42" cy="126" r="16" fill="#8aa0b3"/><text x="68" y="120" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#17324d" font-weight="700">IT Helpdesk</text><text x="68" y="140" font-family="-apple-system,Arial,sans-serif" font-size="12.5" fill="#263746">Password policy reminder</text><text x="68" y="158" font-family="-apple-system,Arial,sans-serif" font-size="11.5" fill="#667786">Tap to open</text><rect x="12" y="184" width="276" height="88" fill="#e7f5fb"/><line x1="12" y1="272" x2="288" y2="272" stroke="#dfe7ed"/><circle cx="42" cy="214" r="16" fill="#18a6d9"/><text x="68" y="208" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#17324d" font-weight="700">Floorsense Service</text><text x="68" y="228" font-family="-apple-system,Arial,sans-serif" font-size="12.5" fill="#263746">Activate your Floorsense account</text>
+<rect x="68" y="240" width="96" height="24" rx="12.0" fill="#1769aa" stroke="#1769aa" stroke-width="1.5"/>
+<text x="116.0" y="257.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="700" text-anchor="middle">Activate</text>
+<rect x="12" y="272" width="276" height="88" fill="#ffffff"/><line x1="12" y1="360" x2="288" y2="360" stroke="#dfe7ed"/><circle cx="42" cy="302" r="16" fill="#8aa0b3"/><text x="68" y="296" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#17324d" font-weight="700">Facilities Team</text><text x="68" y="316" font-family="-apple-system,Arial,sans-serif" font-size="12.5" fill="#263746">New desk booking rules</text><text x="68" y="334" font-family="-apple-system,Arial,sans-serif" font-size="11.5" fill="#667786">Tap to open</text>
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div><div class="caption">Open the unique activation link in your Floorsense Service email.</div></div>
+</div></div>
+
+<div class="step"><div class="num">2</div><div>
+  <strong>Register with your work email.</strong>
+  <p>Use the work email address associated with your Floorsense account.</p>
+  <div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a registration form with work email and password fields and a Register button"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+<path d="M32 41 L24 48 L32 55" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="56" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Register</text>
+<text x="30" y="110" font-family="-apple-system,Arial,sans-serif" font-size="19" fill="#17324d" font-weight="700">Create your account</text><text x="30" y="130" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#667786" font-weight="600">Work email</text><rect x="30" y="140" width="238" height="40" rx="8" fill="#ffffff" stroke="#dfe7ed"/><text x="30" y="196" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#667786" font-weight="600">Password</text><rect x="30" y="206" width="238" height="40" rx="8" fill="#ffffff" stroke="#dfe7ed"/><text x="30" y="262" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#667786" font-weight="600">Confirm password</text><rect x="30" y="272" width="238" height="40" rx="8" fill="#ffffff" stroke="#dfe7ed"/>
+<rect x="30" y="344" width="238" height="44" rx="22.0" fill="#1769aa" stroke="#1769aa" stroke-width="1.5"/>
+<text x="149.0" y="371.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="700" text-anchor="middle">Register</text>
+
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+</div></div>
+
+<div class="step"><div class="num">3</div><div>
+  <strong>Choose “I’ll install the App later”.</strong>
+  <p>This lets you finish registration first and install the mobile app separately.</p>
+  <div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a screen offering to install the app now or later"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+<path d="M32 41 L24 48 L32 55" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="56" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Setup</text>
+<text x="150" y="150" font-family="-apple-system,Arial,sans-serif" font-size="19" fill="#17324d" font-weight="700" text-anchor="middle">Almost done!</text><text x="150" y="178" font-family="-apple-system,Arial,sans-serif" font-size="12.5" fill="#667786" text-anchor="middle">Install the mobile app now, or finish</text><text x="150" y="196" font-family="-apple-system,Arial,sans-serif" font-size="12.5" fill="#667786" text-anchor="middle">this later from your app store.</text>
+<rect x="38" y="240" width="224" height="46" rx="23.0" fill="#1769aa" stroke="#1769aa" stroke-width="1.5"/>
+<text x="150.0" y="268.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="700" text-anchor="middle">Install the app now</text>
+
+<rect x="38" y="300" width="224" height="46" rx="23.0" fill="#ffffff" stroke="#1769aa" stroke-width="1.5"/>
+<text x="150.0" y="328.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#1769aa" font-weight="700" text-anchor="middle">I’ll install the App later</text>
+
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+</div></div>
+
+<div class="callout">
+  <strong>Desktop access</strong><br>
+  After registration, bookmark the Floorsense Desktop application:
+  <a class="link" href="https://my.floorsense.com.au/app/login">Open Floorsense Desktop</a>
+</div>
+</section>
+
+<section id="install">
+<h2>2. Install the Floorsense mobile app</h2>
+
+<h3>Before you install</h3>
+<p>Make sure these phone services are switched on:</p>
+<div class="checks">
+  <div class="check"><b>Location</b>ON</div>
+  <div class="check"><b>Bluetooth</b>ON</div>
+  <div class="check"><b>Internet</b>ON — use mobile data or Wi-Fi, whichever is stronger</div>
+  <div class="check"><b>First launch permissions</b>Allow Location, Bluetooth and Notifications</div>
+</div>
+
+<h3>Download the app</h3>
+<p>Return to the Floorsense download page and select the app store for your phone, or download the Floorsense app directly from your app store.</p>
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a download screen with App Store and Google Play buttons"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+<path d="M32 41 L24 48 L32 55" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="56" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Download</text>
+<text x="150" y="140" font-family="-apple-system,Arial,sans-serif" font-size="18" fill="#17324d" font-weight="700" text-anchor="middle">Get the Floorsense app</text><rect x="38" y="180" width="224" height="64" rx="12" fill="#17324d"/><path d="M62 218 a12 12 0 1 1 0.1 0" fill="none" stroke="#ffffff" stroke-width="2.6"/><text x="86" y="206" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#cfe3f0">Download on the</text><text x="86" y="224" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">App Store</text><rect x="38" y="258" width="224" height="64" rx="12" fill="#1769aa"/><polygon points="58,238 58,238 58,238" fill="none"/><path d="M56 290 l14 -18 l14 18 z" fill="#ffffff" transform="translate(0,-2)"/><text x="86" y="284" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#dbeeff">GET IT ON</text><text x="86" y="302" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#ffffff" font-weight="700">Google Play</text>
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+
+<div class="platforms">
+  <div class="platform">
+    <h3>iPhone</h3>
+    <p>Floorsense is supported on iPhone 5, 5S, 6, 6S and later.</p>
+  </div>
+  <div class="platform">
+    <h3>Android</h3>
+    <p>Android version 7.1 and later is supported.</p>
+  </div>
+</div>
+
+<div class="callout warning">
+  <strong>Phone only</strong><br>
+  The Floorsense app works on smartphones. Tablets are not supported.
+</div>
+</section>
+
+<section id="use">
+<h2>3. What you can do in the app</h2>
+<p>Once installation is complete, you can use Floorsense to reserve available workplace resources such as desks, lockers, parking spaces and rooms.</p>
+
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a floor plan with available and booked desks and a Reserve button"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+
+<text x="30" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Reservations</text>
+<text x="30" y="108" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#17324d" font-weight="700">Floor 3 – Desks</text><rect x="28" y="134" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="50" y="155" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D1</text><rect x="88" y="134" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="110" y="155" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D2</text><rect x="148" y="134" width="44" height="32" rx="6" fill="#c7cfd6" stroke="#667786" stroke-width="1.5"/><text x="170" y="155" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D3</text><rect x="208" y="134" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="230" y="155" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D4</text><rect x="28" y="194" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="50" y="215" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D5</text><rect x="88" y="194" width="44" height="32" rx="6" fill="#c7cfd6" stroke="#667786" stroke-width="1.5"/><text x="110" y="215" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D6</text><rect x="148" y="194" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="170" y="215" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D7</text><rect x="208" y="194" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="230" y="215" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D8</text><rect x="28" y="254" width="44" height="32" rx="6" fill="#c7cfd6" stroke="#667786" stroke-width="1.5"/><text x="50" y="275" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D9</text><rect x="88" y="254" width="44" height="32" rx="6" fill="#bfe6c9" stroke="#087f5b" stroke-width="1.5"/><text x="110" y="275" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#263746" text-anchor="middle">D10</text>
+<rect x="30" y="330" width="14" height="14" rx="3" fill="#bfe6c9" stroke="#087f5b"/>
+<text x="50" y="341" font-family="-apple-system,Arial,sans-serif" font-size="11" fill="#263746">Available</text>
+<rect x="150" y="330" width="14" height="14" rx="3" fill="#c7cfd6" stroke="#667786"/>
+<text x="170" y="341" font-family="-apple-system,Arial,sans-serif" font-size="11" fill="#263746">Booked</text>
+<rect x="38" y="362" width="224" height="44" rx="22.0" fill="#1769aa" stroke="#1769aa" stroke-width="1.5"/>
+<text x="150.0" y="389.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="700" text-anchor="middle">Reserve selected desk</text>
+<rect x="12" y="540" width="276" height="48" fill="#ffffff" stroke="#dfe7ed"/><circle cx="46.5" cy="562" r="9" fill="none" stroke="#1769aa" stroke-width="2.4"/><text x="46.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#1769aa" text-anchor="middle" font-weight="600">Home</text><circle cx="115.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="115.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Desks</text><circle cx="184.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="184.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Map</text><circle cx="253.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="253.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Profile</text>
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a booking details card showing desk, date and time with Edit and Cancel buttons"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+<path d="M32 41 L24 48 L32 55" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="56" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Reservations</text>
+<text x="30" y="108" font-family="-apple-system,Arial,sans-serif" font-size="17" fill="#17324d" font-weight="700">Booking details</text><rect x="30" y="120" width="238" height="52" rx="10" fill="#ffffff" stroke="#dfe7ed"/><text x="46" y="142" font-family="-apple-system,Arial,sans-serif" font-size="11" fill="#667786" font-weight="600">Desk</text><text x="46" y="160" font-family="-apple-system,Arial,sans-serif" font-size="14" fill="#263746" font-weight="600">D2 – Floor 3</text><rect x="30" y="184" width="238" height="52" rx="10" fill="#ffffff" stroke="#dfe7ed"/><text x="46" y="206" font-family="-apple-system,Arial,sans-serif" font-size="11" fill="#667786" font-weight="600">Date</text><text x="46" y="224" font-family="-apple-system,Arial,sans-serif" font-size="14" fill="#263746" font-weight="600">Mon 21 Sep 2026</text><rect x="30" y="248" width="238" height="52" rx="10" fill="#ffffff" stroke="#dfe7ed"/><text x="46" y="270" font-family="-apple-system,Arial,sans-serif" font-size="11" fill="#667786" font-weight="600">Time</text><text x="46" y="288" font-family="-apple-system,Arial,sans-serif" font-size="14" fill="#263746" font-weight="600">9:00 – 17:00</text>
+<rect x="30" y="326" width="112" height="42" rx="21.0" fill="#ffffff" stroke="#1769aa" stroke-width="1.5"/>
+<text x="86.0" y="352.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#1769aa" font-weight="700" text-anchor="middle">Edit</text>
+
+<rect x="154" y="326" width="114" height="42" rx="21.0" fill="#fdeceb" stroke="#e2988e" stroke-width="1.5"/>
+<text x="211.0" y="352.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#b42318" font-weight="700" text-anchor="middle">Cancel</text>
+
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+
+<h3>Confirm your desk when you arrive</h3>
+<p>When you arrive at your reserved desk, the app can display a <strong>Confirm / Ignore</strong> prompt.</p>
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of a Confirm / Ignore desk check-in prompt"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+
+<text x="30" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Reservations</text>
+<rect x="12" y="42" width="276" height="546" fill="#17324d" opacity="0.35"/>
+<rect x="34" y="230" width="232" height="180" rx="16" fill="#ffffff"/>
+<text x="150" y="270" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#17324d" font-weight="700" text-anchor="middle">Are you at Desk 2?</text>
+<text x="150" y="292" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#667786" text-anchor="middle">We noticed you nearby.</text>
+
+<rect x="58" y="314" width="184" height="40" rx="20.0" fill="#1769aa" stroke="#1769aa" stroke-width="1.5"/>
+<text x="150.0" y="339.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#ffffff" font-weight="700" text-anchor="middle">Confirm</text>
+
+
+<rect x="58" y="362" width="184" height="36" rx="18.0" fill="#ffffff" stroke="#1769aa" stroke-width="1.5"/>
+<text x="150.0" y="385.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#1769aa" font-weight="700" text-anchor="middle">Ignore</text>
+
+
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+<p>If you select <strong>Ignore</strong>, the confirmation prompt for that desk will stop appearing.</p>
+
+<h3>Turn desk confirmation back on</h3>
+<p>To receive confirmation reminders again:</p>
+<ol>
+  <li>Open the <strong>Desks</strong> tab at the bottom of the app.</li>
+  <li>Scroll down.</li>
+  <li>Select <strong>Stop Ignoring</strong>.</li>
+</ol>
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of the Desks tab with a Stop Ignoring option on a desk that is currently ignoring notifications"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+
+<text x="30" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Desks</text>
+<rect x="30" y="108" width="238" height="92" rx="10" fill="#ffffff" stroke="#dfe7ed"/><text x="46" y="134" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#263746" font-weight="700">D2 – Floor 3</text><text x="46" y="152" font-family="-apple-system,Arial,sans-serif" font-size="11.5" fill="#c98a00">Ignoring notifications</text>
+<rect x="46" y="164" width="130" height="30" rx="15.0" fill="#ffffff" stroke="#1769aa" stroke-width="1.5"/>
+<text x="111.0" y="184.0" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#1769aa" font-weight="700" text-anchor="middle">Stop Ignoring</text>
+<rect x="30" y="214" width="238" height="70" rx="10" fill="#ffffff" stroke="#dfe7ed"/><text x="46" y="240" font-family="-apple-system,Arial,sans-serif" font-size="13" fill="#263746" font-weight="700">D5 – Floor 1</text><text x="46" y="258" font-family="-apple-system,Arial,sans-serif" font-size="11.5" fill="#087f5b">Active</text><rect x="12" y="540" width="276" height="48" fill="#ffffff" stroke="#dfe7ed"/><circle cx="46.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="46.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Home</text><circle cx="115.5" cy="562" r="9" fill="none" stroke="#1769aa" stroke-width="2.4"/><text x="115.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#1769aa" text-anchor="middle" font-weight="600">Desks</text><circle cx="184.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="184.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Map</text><circle cx="253.5" cy="562" r="9" fill="none" stroke="#667786" stroke-width="2.4"/><text x="253.5" y="590" font-family="-apple-system,Arial,sans-serif" font-size="10" fill="#667786" text-anchor="middle" font-weight="600">Profile</text>
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+
+<h3>Find and manage your desk booking</h3>
+<div class="figure"><div class="mockup" role="img" aria-label="Mock-up of desk booking controls: map, floor plan, edit and cancel icons"><svg viewBox="0 0 300 600" xmlns="http://www.w3.org/2000/svg">
+<rect x="2" y="2" width="296" height="596" rx="36" fill="#17324d"/>
+<rect x="12" y="12" width="276" height="576" rx="24" fill="#eef3f6"/>
+
+<rect x="12" y="12" width="276" height="30" fill="#eef3f6"/>
+<rect x="120" y="22" width="60" height="8" rx="4" fill="#0f2338"/>
+<text x="30" y="33" font-family="-apple-system,Arial,sans-serif" font-size="12" fill="#263746" font-weight="700">9:41</text>
+<circle cx="246" cy="28" r="3" fill="#263746"/>
+<circle cx="256" cy="28" r="3" fill="#263746"/>
+<circle cx="266" cy="28" r="3" fill="#263746"/>
+
+
+<rect x="12" y="42" width="276" height="46" fill="#17324d"/>
+<path d="M32 41 L24 48 L32 55" stroke="#ffffff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="56" y="70" font-family="-apple-system,Arial,sans-serif" font-size="16" fill="#ffffff" font-weight="700">Booking controls</text>
+<text x="30" y="108" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#17324d" font-weight="700">D2 – Floor 3</text><circle cx="60" cy="160" r="26" fill="#ffffff" stroke="#dfe7ed" stroke-width="1.5"/><text x="60" y="167" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#1769aa" font-weight="700" text-anchor="middle">M</text><text x="60" y="204" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#667786" text-anchor="middle">Map</text><circle cx="122" cy="160" r="26" fill="#ffffff" stroke="#dfe7ed" stroke-width="1.5"/><text x="122" y="167" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#1769aa" font-weight="700" text-anchor="middle">F</text><text x="122" y="204" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#667786" text-anchor="middle">Floor plan</text><circle cx="184" cy="160" r="26" fill="#ffffff" stroke="#dfe7ed" stroke-width="1.5"/><text x="184" y="167" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#1769aa" font-weight="700" text-anchor="middle">E</text><text x="184" y="204" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#667786" text-anchor="middle">Edit</text><circle cx="246" cy="160" r="26" fill="#ffffff" stroke="#dfe7ed" stroke-width="1.5"/><text x="246" y="167" font-family="-apple-system,Arial,sans-serif" font-size="15" fill="#1769aa" font-weight="700" text-anchor="middle">X</text><text x="246" y="204" font-family="-apple-system,Arial,sans-serif" font-size="10.5" fill="#667786" text-anchor="middle">Cancel</text>
+</svg><span class="illus-tag">Illustration, not an actual app screenshot</span></div></div>
+<ul>
+  <li>Tap the <strong>map</strong> icon to see your desk location on the floorplan.</li>
+  <li>Switch to the <strong>floor plan view</strong>.</li>
+  <li>Edit the booking time.</li>
+  <li>Change the desk.</li>
+  <li>Cancel the desk booking.</li>
+</ul>
+</section>
+
+<section id="troubleshooting">
+<h2>4. Troubleshooting</h2>
+<p>Select the issue you're experiencing to get guided steps.</p>
+
+<div class="symptom-grid" id="symptomGrid">
+  <button class="symptom-btn" data-target="fix-acctExists">“Account already exists”<span class="sub">Registering with an email that's already set up</span></button>
+  <button class="symptom-btn" data-target="fix-cantLogin">Unable to log in<span class="sub">Password not working or forgotten</span></button>
+  <button class="symptom-btn" data-target="fix-checkinFail">Can't check in to my desk puck<span class="sub">App won't detect the desk</span></button>
+  <button class="symptom-btn" data-target="fix-blankPage">App shows a blank page<span class="sub">Floor plan won't load</span></button>
+  <button class="symptom-btn" data-target="fix-setupCode">Where do I get the Setup Code?<span class="sub">Needed during registration</span></button>
+  <button class="symptom-btn" data-target="fix-noReservations">Reservations missing from home screen<span class="sub">Bookings don't show up</span></button>
+</div>
+
+<div id="fixPanels">
+
+  <div class="fix-panel" id="fix-acctExists" hidden>
+    <h4>“Account already exists”</h4>
+    <p>Select <strong>I already have an account</strong> on the registration page and log in.</p>
+    <p>If you don't remember your password, select <strong>Forgot my password</strong> and reset it.</p>
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+  <div class="fix-panel" id="fix-cantLogin" hidden>
+    <h4>Unable to log in</h4>
+    <p>Select <strong>Forgot my password</strong> below the login window and reset your password.</p>
+    <p>If you still need help, contact <a href="mailto:support@smartalock.com">support@smartalock.com</a>.</p>
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+  <div class="fix-panel" id="fix-checkinFail" hidden>
+    <h4>Can't check in to my desk puck</h4>
+
+    <div class="branch-q" data-step="q1">
+      <p>Are Location and Bluetooth both switched ON for the Floorsense app right now?</p>
+      <div class="branch-actions">
+        <button type="button" data-goto="q1-no">No / not sure</button>
+        <button type="button" data-goto="q1-yes">Yes, both are on</button>
+      </div>
+    </div>
+
+    <div class="branch-q" data-step="q1-no" hidden>
+      <p>Turn on Location and Bluetooth in your phone's Settings, then reopen Floorsense and try checking in again.</p>
+      <div class="branch-actions">
+        <button type="button" data-goto="q1">&larr; Back</button>
+        <button type="button" data-goto="q1-yes">Still not working &rarr;</button>
+      </div>
+    </div>
+
+    <div data-step="q1-yes" hidden>
+      <p>The app may not have full access to Bluetooth and/or Location. Try a clean reinstall:</p>
+      <ol>
+        <li>Force-quit the Floorsense app.</li>
+        <li>Clear its cache/data (Android: App info &rarr; Storage &rarr; Clear cache/data).</li>
+        <li>Uninstall the app.</li>
+        <li>Reinstall it from your app store.</li>
+        <li>Make sure <strong>Location, Bluetooth and Internet are ON</strong> before opening it again.</li>
+        <li>On first run, select <strong>Allow</strong> for Location, Bluetooth and Notifications when prompted.</li>
+      </ol>
+      <button type="button" class="link-btn" data-goto="q1">&larr; Back to previous question</button>
+    </div>
+
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+  <div class="fix-panel" id="fix-blankPage" hidden>
+    <h4>App shows a blank page</h4>
+
+    <div class="branch-q" data-step="q1">
+      <p>Has it been less than 3 minutes since you first opened the app, or is your connection unstable?</p>
+      <div class="branch-actions">
+        <button type="button" data-goto="q1-yes">Yes, likely still loading</button>
+        <button type="button" data-goto="q1-no">No, it's been longer / connection is fine</button>
+      </div>
+    </div>
+
+    <div data-step="q1-yes" hidden>
+      <p>Allow 1–3 minutes for the floor plan to download, especially on first launch. Use a stable Wi‑Fi or mobile data connection and keep the app open.</p>
+      <button type="button" class="link-btn" data-goto="q1-no">Still blank after waiting? &rarr;</button>
+    </div>
+
+    <div data-step="q1-no" hidden>
+      <p>Reset the app and let it re-download the floor plan:</p>
+      <ol>
+        <li>Close the Floorsense app completely.</li>
+        <li>Open your phone's <strong>Settings</strong> and find the Floorsense app.</li>
+        <li>Choose the option to <strong>reset</strong> the app.</li>
+        <li>Relaunch Floorsense and allow the floor plan to download again.</li>
+      </ol>
+      <button type="button" class="link-btn" data-goto="q1">&larr; Back to previous question</button>
+    </div>
+
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+  <div class="fix-panel" id="fix-setupCode" hidden>
+    <h4>Where do I get the Setup Code?</h4>
+    <p>The setup code is part of your unique activation link. Open your activation email and copy the part of the link after <code>code=</code>.</p>
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+  <div class="fix-panel" id="fix-noReservations" hidden>
+    <h4>Reservations missing from home screen</h4>
+    <p>Refresh the app by touching the top of the screen and dragging your finger down without lifting it (pull-to-refresh).</p>
+    <button class="back-btn" type="button">&larr; Back to issues</button>
+  </div>
+
+</div>
+
+<div class="callout still-stuck">
+  <strong>Still stuck?</strong><br>
+  Contact <a href="mailto:support@smartalock.com">support@smartalock.com</a> and include a screenshot of the issue where possible.
+</div>
+</section>
+
+<footer>
+  Floorsense Mobile App — Non-SSO registration and installation guide<br>
+  Source content maintained in the Floorsense Help Centre.
+</footer>
+</div>
+
+<script>
+(function(){
+  var grid = document.getElementById('symptomGrid');
+  var panels = document.querySelectorAll('.fix-panel');
+
+  function resetBranches(panel){
+    var steps = panel.querySelectorAll('[data-step]');
+    if(!steps.length) return;
+    steps.forEach(function(s){ s.hidden = true; });
+    var first = panel.querySelector('[data-step="q1"]');
+    if(first) first.hidden = false;
+  }
+
+  document.querySelectorAll('.symptom-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      grid.hidden = true;
+      panels.forEach(function(p){ p.hidden = true; });
+      var panel = document.getElementById(btn.dataset.target);
+      resetBranches(panel);
+      panel.hidden = false;
+      panel.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  document.querySelectorAll('.back-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      panels.forEach(function(p){ p.hidden = true; });
+      grid.hidden = false;
+      grid.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+
+  document.querySelectorAll('[data-goto]').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var panel = btn.closest('.fix-panel');
+      panel.querySelectorAll('[data-step]').forEach(function(s){ s.hidden = true; });
+      var target = panel.querySelector('[data-step="' + btn.dataset.goto + '"]');
+      if(target) target.hidden = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>

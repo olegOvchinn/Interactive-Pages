@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    --font-text: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    --ink: #1D1D1F;
+    --ink-soft: #6E6E73;
+    --header-grey: #48484A;
+    --paper: #FFFFFF;
+    --paper-soft: #F5F5F7;
+    --line: #D2D2D7;
+    --accent: #0071E3;
+    --accent-wash: #E8F1FC;
+    --accent-deep: #0058B0;
+    --warning: #D98E00;
+    --warning-wash: #FBF1E0;
+    --violet: #7C3AED;
+    --danger: #D4332C;
+    --danger-wash: #FBEBEA;
+    --success: #1E6B3A;
+    --success-wash: #F0F9F1;
+    --radius-lg: 20px;
+    --radius-md: 14px;
+    --panel-maxw: 860px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page-main { min-height: 100vh; display: flex; flex-direction: column; }
+  .panel-inner { max-width: var(--panel-maxw); margin: 0 auto; width: 100%; padding: 0 28px; }
+
+  /* ---------- top bar ---------- */
+  .top-frame {
+    position: sticky; top: 0; z-index: 50; background: var(--paper);
+    padding: 16px 0; border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo { height: 20px; width: auto; display: block; flex-shrink: 0; }
+  .brand-tagline {
+    color: var(--ink-soft); font-family: var(--font-text); font-weight: 500; font-size: 11px;
+    letter-spacing: 0.06em; text-transform: uppercase; padding-left: 12px; border-left: 1px solid var(--line);
+  }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 500;
+    color: var(--ink-soft); text-decoration: none; margin-bottom: 14px;
+  }
+  .back-link:hover { color: var(--accent); }
+  .top-frame-heading { display: block; margin-top: 18px; text-align: left; }
+  .top-frame-heading h1.hero-title {
+    font-family: var(--font-display); font-weight: 200; letter-spacing: -0.5px; line-height: 1.12;
+    color: #102A43; font-size: clamp(32px, 4.6vw, 44px); margin: 0 0 8px;
+  }
+  .top-frame-heading p.sub { font-size: 16px; line-height: 1.55; color: var(--ink-soft); margin: 0; max-width: none; }
+  .local-note {
+    margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px;
+    color: var(--warning); background: var(--warning-wash); border: 1px solid #EFD9A8; border-radius: 100px;
+    padding: 6px 14px;
+  }
+
+  /* ---------- time period filter ---------- */
+  .filter-bar {
+    margin-top: 18px; display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap;
+    background: var(--paper-soft); border-radius: var(--radius-md); padding: 14px 16px;
+  }
+  .filter-field { display: flex; flex-direction: column; gap: 5px; }
+  .filter-field label { font-size: 11.5px; font-weight: 600; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.03em; }
+  .filter-field input[type="date"] {
+    font-family: var(--font-text); font-size: 13.5px; color: var(--ink); padding: 7px 10px;
+    border: 1px solid var(--line); border-radius: 8px; background: #fff;
+  }
+  .filter-field input[type="date"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .filter-clear {
+    font-family: var(--font-text); font-weight: 600; font-size: 12.5px; color: var(--accent);
+    background: none; border: 1px solid var(--line); border-radius: 980px; padding: 8px 16px; cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .filter-clear:hover { border-color: var(--accent); background: var(--accent-wash); }
+  .filter-range-note { font-size: 12px; color: var(--ink-soft); margin-left: auto; align-self: center; }
+
+  .panel-scroll { flex: 1; padding: 32px 0 56px; }
+  section.stats-section { margin-top: 40px; }
+  section.stats-section:first-of-type { margin-top: 0; }
+  h2.section-title {
+    font-family: var(--font-display); font-weight: 600; font-size: 18px; color: var(--header-grey);
+    margin: 0 0 16px;
+  }
+
+  /* ---------- overview tiles ---------- */
+  .tile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; }
+  .tile {
+    background: var(--paper-soft); border-radius: var(--radius-md); padding: 18px 20px;
+  }
+  .tile .tile-value { font-family: var(--font-display); font-weight: 600; font-size: 30px; color: var(--ink); line-height: 1.1; }
+  .tile .tile-label { font-size: 12.5px; color: var(--ink-soft); margin-top: 6px; }
+
+  /* ---------- per-system tables ---------- */
+  .system-block { margin-bottom: 28px; }
+  .system-block:last-child { margin-bottom: 0; }
+  .system-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .system-head h3 { font-family: var(--font-display); font-weight: 500; font-size: 15.5px; color: var(--header-grey); margin: 0; }
+  .badge-pill {
+    font-size: 8.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px;
+    border-radius: 100px; font-weight: 700; white-space: nowrap; background: #fff;
+  }
+  .badge-pill.badge-blue { color: var(--accent); border: 1.5px solid var(--accent); }
+  .badge-pill.badge-amber { color: var(--warning); border: 1.5px solid var(--warning); }
+
+  table.stats-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  table.stats-table th, table.stats-table td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--line); }
+  table.stats-table th { font-weight: 600; color: var(--ink-soft); font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  table.stats-table td.num, table.stats-table th.num { text-align: right; width: 90px; }
+  table.stats-table tr:last-child td { border-bottom: none; }
+  .empty-row td { color: var(--ink-soft); font-style: italic; }
+  .notes-check { color: var(--success); font-weight: 700; }
+  .notes-dash { color: var(--line); }
+
+  /* ---------- visits-over-time chart ---------- */
+  .chart-card { background: var(--paper-soft); border-radius: var(--radius-md); padding: 20px 22px 10px; }
+  .chart-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+  .chart-head-label { font-family: var(--font-display); font-weight: 500; font-size: 14px; color: var(--header-grey); }
+  .chart-head-sub { font-weight: 400; font-size: 12px; color: var(--ink-soft); margin-left: 8px; }
+  .viz-root {
+    position: relative; color-scheme: light;
+    --surface-1: #fcfcfb; --text-primary: #1D1D1F; --text-secondary: #6E6E73;
+    --text-muted: #898781; --gridline: #e1e0d9; --baseline: #c3c2b7; --series-1: #0071E3;
+  }
+  .viz-root svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .viz-root svg text { font-family: var(--font-text); }
+  .viz-root .hover-overlay { cursor: crosshair; }
+  .viz-root .hover-overlay:focus { outline: none; }
+  .viz-root .hover-crosshair line { stroke-dasharray: 2 3; }
+  .chart-empty { font-size: 13.5px; color: var(--ink-soft); font-style: italic; padding: 20px 0 10px; }
+  .chart-tooltip {
+    position: absolute; pointer-events: none; background: #1D1D1F; color: #fff; font-size: 12px;
+    line-height: 1.4; padding: 7px 10px; border-radius: 8px; transform: translate(-50%, -115%);
+    white-space: nowrap; opacity: 0; transition: opacity .1s; z-index: 5;
+  }
+  .chart-tooltip.visible { opacity: 1; }
+  .chart-tooltip .tt-value { font-weight: 700; }
+  .chart-tooltip .tt-label { color: #c3c2b7; margin-top: 2px; }
+  .chart-table-toggle { margin-top: 4px; padding-bottom: 6px; }
+  .chart-table-toggle summary { cursor: pointer; font-size: 12.5px; color: var(--accent); font-weight: 500; list-style: none; }
+  .chart-table-toggle summary::-webkit-details-marker { display: none; }
+  .chart-table-toggle summary:hover { text-decoration: underline; }
+  .chart-table-toggle table { margin-top: 10px; }
+
+  /* ---------- recent notes ---------- */
+  .note-card { background: var(--paper-soft); border-radius: var(--radius-md); padding: 16px 18px; margin-bottom: 10px; }
+  .note-card:last-child { margin-bottom: 0; }
+  .note-card .note-meta { display: flex; align-items: center; gap: 8px; font-size: 11.5px; color: var(--ink-soft); margin-bottom: 6px; }
+  .note-card .note-text { font-size: 13.5px; color: var(--ink); white-space: pre-wrap; line-height: 1.5; }
+  .empty-state { font-size: 13.5px; color: var(--ink-soft); font-style: italic; }
+
+  /* ---------- section comments (notes about this report, not filtered by time period) ---------- */
+  .comment-box { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--line); }
+  .comment-box-label { font-family: var(--font-display); font-weight: 500; font-size: 13px; color: var(--header-grey); margin-bottom: 8px; }
+  .comment-box-label .comment-box-optional { font-family: var(--font-text); font-weight: 400; color: var(--ink-soft); }
+  .comment-box-input {
+    width: 100%; min-height: 72px; resize: vertical; font-family: var(--font-text); font-size: 13.5px;
+    color: var(--ink); padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; box-sizing: border-box;
+  }
+  .comment-box-input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .comment-box-status { font-size: 11px; color: var(--success); margin-top: 6px; min-height: 14px; }
+
+  /* ---------- danger zone ---------- */
+  .danger-zone {
+    margin-top: 44px; padding-top: 22px; border-top: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  }
+  .danger-zone p { font-size: 12.5px; color: var(--ink-soft); margin: 0; max-width: 440px; }
+  button.danger-btn {
+    font-family: var(--font-text); font-weight: 600; font-size: 13px; color: var(--danger);
+    background: var(--danger-wash); border: 1px solid #F0C4C1; border-radius: 980px; padding: 10px 18px;
+    cursor: pointer; white-space: nowrap; transition: background .15s, border-color .15s;
+  }
+  button.danger-btn:hover { background: #F7DAD8; border-color: var(--danger); }
+  .clear-status { font-size: 12px; color: var(--success); margin-top: 8px; min-height: 16px; }
+
+  footer.site-foot { text-align: center; padding: 22px 0 14px; font-size: 11.5px; font-weight: 300; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<main class="page-main">
+
+  <div class="top-frame">
+    <div class="panel-inner">
+      <div class="brand">
+        <img class="brand-logo" src="images/smartalock-logo.png" alt="Smartalock">
+        <span class="brand-tagline">Troubleshooting Wizard</span>
+      </div>
+      <div class="top-frame-heading">
+        <a class="back-link" href="Troubleshooting_Hub.html">&larr; Back to Troubleshooting Hub</a>
+        <h1 class="hero-title">Summary</h1>
+        <p class="sub">Page visits, resolved issues and saved notes across the Locker, Desk and Meeting Room wizards.</p>
+        <span class="local-note">⚠ Stored only in this browser — not shared across computers, and cleared if browser data is cleared.</span>
+
+        <div class="filter-bar">
+          <div class="filter-field">
+            <label for="filterStart">Start date</label>
+            <input type="date" id="filterStart">
+          </div>
+          <div class="filter-field">
+            <label for="filterEnd">End date</label>
+            <input type="date" id="filterEnd">
+          </div>
+          <button type="button" class="filter-clear" id="filterClear">All time</button>
+          <span class="filter-range-note" id="filterRangeNote"></span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-scroll">
+    <div class="panel-inner">
+
+      <section class="stats-section">
+        <h2 class="section-title">Overview</h2>
+        <div class="tile-grid">
+          <div class="tile"><div class="tile-value" id="tileVisits">0</div><div class="tile-label">Total page visits</div></div>
+          <div class="tile"><div class="tile-value" id="tileResolved">0</div><div class="tile-label">Issues marked resolved</div></div>
+          <div class="tile"><div class="tile-value" id="tileRate">&mdash;</div><div class="tile-label">Resolution rate</div></div>
+          <div class="tile"><div class="tile-value" id="tileNotes">0</div><div class="tile-label">Issues with saved notes</div></div>
+        </div>
+        <div id="commentOverview"></div>
+      </section>
+
+      <section class="stats-section">
+        <h2 class="section-title">Visits Over Time</h2>
+        <div class="chart-card">
+          <div class="chart-head">
+            <span class="chart-head-label">Total page visits<span class="chart-head-sub" id="chartRangeLabel"></span></span>
+          </div>
+          <div class="viz-root" id="visitsChartRoot"></div>
+        </div>
+        <div id="commentVisitsChart"></div>
+      </section>
+
+      <section class="stats-section">
+        <h2 class="section-title">By System</h2>
+        <div id="systemBlocks"></div>
+      </section>
+
+      <section class="stats-section">
+        <h2 class="section-title">Recent Notes</h2>
+        <div id="recentNotes"></div>
+        <div id="commentRecentNotes"></div>
+      </section>
+
+      <div class="danger-zone">
+        <p>Clears all locally stored visit counts, resolved counts and notes from this browser. This cannot be undone.</p>
+        <button class="danger-btn" type="button" id="clearBtn">Clear All Statistics</button>
+      </div>
+      <div class="clear-status" id="clearStatus">&nbsp;</div>
+
+    </div>
+  </div>
+
+  <footer class="site-foot">Smartalock Support Wizard</footer>
+
+</main>
+
+<script src="wizard-data.js"></script>
+<script>
+(function () {
+    const PAGE_KEY = 'Summary';
+    if (window.STW) STW.logEvent({ type: 'visit', page: PAGE_KEY, step: 'summary' });
+
+    const SYSTEMS = [
+        {
+            key: 'Locker', name: 'Locker Booking System (Smartalock)', badge: 'badge-blue', badgeText: 'Smartalock',
+            issues: {
+                'offline': 'Locker Bank Status: "Offline"',
+                'locks-grey': 'Locker Bank "Online", but Locks Not Available / Greyed Out',
+                'blue-user': 'Blue Screen: "User Not Found on This Bank"',
+                'blue-network': 'Blue Screen: "Network Unavailable"',
+                'blue-unconnected': 'Blue Screen: "Status: Unconnected"',
+                'card-reader': 'Card Reader is Not Responding',
+                'stuck-door': 'Locker Door Not Opening / Stuck',
+                'vpn-restart': 'VPN Appliance Down / Site Unreachable'
+            }
+        },
+        {
+            key: 'Desk', name: 'Desk Booking System (Floorsense)', badge: 'badge-amber', badgeText: 'Floorsense',
+            issues: {
+                'desks-offline': 'Desks Periodically Offline',
+                'handset-error': 'Handset/Display Screen Issues (sub-hub)',
+                'handset-screensaver': 'Screen Saver / Inactive Display',
+                'handset-blue-info': 'Stuck on the Blue Info Screen',
+                'handset-bootloader': 'Stuck on the Bootloader Screen',
+                'handset-x-screen': 'Stuck on an "X" Screen',
+                'motion-sensor': 'Motion Sensor Diagnostics',
+                'handset-diagnostics': 'Handset Diagnostics'
+            }
+        },
+        {
+            key: 'MeetingRoom', name: 'Meeting Room Booking System (Floorsense)', badge: 'badge-amber', badgeText: 'Floorsense',
+            issues: {
+                'tablet-unresponsive': 'Tablet Unresponsive / Blank Screen',
+                'blue-user': 'Blue Screen: "User Not Found on This Bank"',
+                'blue-network': 'Blue Screen: "Network Unavailable"',
+                'blue-unconnected': 'Blue Screen: "Status: Unconnected"',
+                'kiosk-unreachable': 'Kiosk Unreachable'
+            }
+        }
+    ];
+    const PAGE_NAMES = { Locker: 'Locker (Smartalock)', Desk: 'Desk (Floorsense)', MeetingRoom: 'Meeting Room (Floorsense)', Hub: 'Troubleshooting Hub', Summary: 'Summary page' };
+
+    function issueTitle(page, step) {
+        const sys = SYSTEMS.find(function (s) { return s.key === page; });
+        if (sys && sys.issues[step]) return sys.issues[step];
+        if (step === 'select') return 'System sub-hub (issue picker)';
+        if (step === 'resolved') return 'Resolved screen';
+        if (step === 'hub') return 'Hub landing page';
+        if (step === 'summary') return 'Summary page';
+        return step;
+    }
+
+    /* ---------- section comments: notes about this report itself, always shown regardless of the
+       selected time period below (they're commentary on the report, not report data). ---------- */
+    function debounce(fn, wait) {
+        let t;
+        return function () {
+            const args = arguments, ctx = this;
+            clearTimeout(t);
+            t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+        };
+    }
+    function mountCommentBox(containerId, stepKey) {
+        const container = document.getElementById(containerId);
+        if (!container || container.querySelector('.comment-box')) return;
+        const wrap = document.createElement('div');
+        wrap.className = 'comment-box';
+        wrap.innerHTML =
+            '<div class="comment-box-label">Notes <span class="comment-box-optional">(optional)</span></div>' +
+            '<textarea class="comment-box-input" placeholder="Add a note about this section — trends, context, follow-ups..."></textarea>' +
+            '<div class="comment-box-status">&nbsp;</div>';
+        container.appendChild(wrap);
+        const textarea = wrap.querySelector('.comment-box-input');
+        const status = wrap.querySelector('.comment-box-status');
+        if (window.STW) textarea.value = STW.getComment(PAGE_KEY, stepKey);
+        const save = debounce(function () {
+            if (window.STW) STW.setComment(PAGE_KEY, stepKey, textarea.value);
+            status.textContent = 'Saved';
+            window.setTimeout(function () { status.textContent = ' '; }, 1500);
+        }, 500);
+        textarea.addEventListener('input', save);
+    }
+
+    /* ---------- visits-over-time chart ---------- */
+    function startOfDay(ts) { const d = new Date(ts); d.setHours(0, 0, 0, 0); return d.getTime(); }
+    function endOfDay(ts) { const d = new Date(ts); d.setHours(23, 59, 59, 999); return d.getTime(); }
+    function addDays(ts, n) { return ts + n * 86400000; }
+    function startOfMonth(ts) { const d = new Date(ts); d.setDate(1); d.setHours(0, 0, 0, 0); return d.getTime(); }
+    function addMonths(ts, n) { const d = new Date(ts); d.setMonth(d.getMonth() + n); return d.getTime(); }
+    function fmtShort(ts) { return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }); }
+    function fmtMonth(ts) { return new Date(ts).toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); }
+    function fmtFull(ts) { return new Date(ts).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }); }
+
+    function computeAxisWindow(bounds, visitTs) {
+        const now = Date.now();
+        let start = bounds.startMs;
+        const end = bounds.endMs !== null ? bounds.endMs : now;
+        if (start === null) {
+            if (visitTs.length) {
+                start = Math.min.apply(null, visitTs);
+            } else if (bounds.endMs !== null) {
+                start = bounds.endMs - 29 * 86400000;
+            } else {
+                return null;
+            }
+        }
+        return { start: startOfDay(start), end: endOfDay(end) };
+    }
+
+    function buildBuckets(axisStart, axisEnd, visitTs) {
+        const spanDays = (axisEnd - axisStart) / 86400000;
+        let unit;
+        if (spanDays <= 31) unit = 'day';
+        else if (spanDays <= 120) unit = 'week';
+        else unit = 'month';
+
+        const buckets = [];
+        if (unit === 'day') {
+            let cur = startOfDay(axisStart);
+            const end = startOfDay(axisEnd);
+            while (cur <= end) {
+                buckets.push({ start: cur, end: endOfDay(cur), label: fmtShort(cur), fullLabel: fmtFull(cur) });
+                cur = addDays(cur, 1);
+            }
+        } else if (unit === 'week') {
+            let cur = startOfDay(axisStart);
+            const end = startOfDay(axisEnd);
+            while (cur <= end) {
+                const wEnd = Math.min(addDays(cur, 6), end);
+                buckets.push({ start: cur, end: endOfDay(wEnd), label: fmtShort(cur), fullLabel: 'Week of ' + fmtFull(cur) });
+                cur = addDays(cur, 7);
+            }
+        } else {
+            let cur = startOfMonth(axisStart);
+            const end = startOfMonth(axisEnd);
+            while (cur <= end) {
+                const mEnd = addMonths(cur, 1) - 1;
+                buckets.push({ start: cur, end: mEnd, label: fmtMonth(cur), fullLabel: fmtMonth(cur) });
+                cur = addMonths(cur, 1);
+            }
+        }
+        buckets.forEach(function (b) {
+            b.value = visitTs.filter(function (t) { return t >= b.start && t <= b.end; }).length;
+        });
+        return buckets;
+    }
+
+    function niceStep(raw) {
+        if (raw <= 0) return 1;
+        const magnitude = Math.pow(10, Math.floor(Math.log10(raw)));
+        const residual = raw / magnitude;
+        let niceResidual;
+        if (residual <= 1) niceResidual = 1;
+        else if (residual <= 2) niceResidual = 2;
+        else if (residual <= 5) niceResidual = 5;
+        else niceResidual = 10;
+        return niceResidual * magnitude;
+    }
+    function computeYAxis(maxVal) {
+        const step = Math.max(1, niceStep(Math.max(1, maxVal) / 4));
+        return { step: step, top: step * 4 };
+    }
+
+    function wireChartHover(root, buckets, xAt, yAt) {
+        const svg = root.querySelector('svg');
+        const overlay = root.querySelector('.hover-overlay');
+        const crosshairG = root.querySelector('.hover-crosshair');
+        const crosshairLine = root.querySelector('.crosshair-line');
+        const hoverDot = root.querySelector('.hover-dot');
+        const tooltip = root.querySelector('.chart-tooltip');
+        const n = buckets.length;
+        let focusedIndex = n - 1;
+
+        function showAt(i) {
+            const b = buckets[i];
+            const x = xAt(i), y = yAt(b.value);
+            crosshairLine.setAttribute('x1', x);
+            crosshairLine.setAttribute('x2', x);
+            hoverDot.setAttribute('cx', x);
+            hoverDot.setAttribute('cy', y);
+            crosshairG.style.display = '';
+            const valueEl = document.createElement('div');
+            valueEl.className = 'tt-value';
+            valueEl.textContent = b.value + (b.value === 1 ? ' visit' : ' visits');
+            const labelEl = document.createElement('div');
+            labelEl.className = 'tt-label';
+            labelEl.textContent = b.fullLabel;
+            tooltip.innerHTML = '';
+            tooltip.appendChild(valueEl);
+            tooltip.appendChild(labelEl);
+
+            const svgRect = svg.getBoundingClientRect();
+            const rootRect = root.getBoundingClientRect();
+            const scaleX = svgRect.width / 760;
+            const scaleY = svgRect.height / 220;
+            tooltip.style.left = (x * scaleX + (svgRect.left - rootRect.left)) + 'px';
+            tooltip.style.top = (y * scaleY + (svgRect.top - rootRect.top)) + 'px';
+            tooltip.classList.add('visible');
+        }
+        function hide() {
+            crosshairG.style.display = 'none';
+            tooltip.classList.remove('visible');
+        }
+        function nearestIndex(clientX) {
+            const rect = svg.getBoundingClientRect();
+            const scaleX = rect.width / 760;
+            const localX = (clientX - rect.left) / scaleX;
+            let best = 0, bestDist = Infinity;
+            for (let i = 0; i < n; i++) {
+                const d = Math.abs(xAt(i) - localX);
+                if (d < bestDist) { bestDist = d; best = i; }
+            }
+            return best;
+        }
+        overlay.addEventListener('pointermove', function (e) { focusedIndex = nearestIndex(e.clientX); showAt(focusedIndex); });
+        overlay.addEventListener('pointerleave', hide);
+        overlay.addEventListener('focus', function () { showAt(focusedIndex); });
+        overlay.addEventListener('blur', hide);
+        overlay.addEventListener('keydown', function (e) {
+            if (e.key === 'ArrowLeft') { focusedIndex = Math.max(0, focusedIndex - 1); showAt(focusedIndex); e.preventDefault(); }
+            else if (e.key === 'ArrowRight') { focusedIndex = Math.min(n - 1, focusedIndex + 1); showAt(focusedIndex); e.preventDefault(); }
+            else if (e.key === 'Escape') { hide(); }
+        });
+    }
+
+    function renderVisitsChart(root, rangeLabelEl, bounds, visitTs, rangeText) {
+        rangeLabelEl.textContent = rangeText;
+        const axis = computeAxisWindow(bounds, visitTs);
+        if (!axis) {
+            root.innerHTML = '<div class="chart-empty">No visit data recorded yet.</div>';
+            return;
+        }
+        const buckets = buildBuckets(axis.start, axis.end, visitTs);
+        const n = buckets.length;
+        const maxVal = Math.max.apply(null, buckets.map(function (b) { return b.value; }));
+        const yAxis = computeYAxis(maxVal);
+
+        const width = 760, height = 220;
+        const marginLeft = 34, marginRight = 40, marginTop = 14, marginBottom = 28;
+        const plotW = width - marginLeft - marginRight;
+        const plotH = height - marginTop - marginBottom;
+
+        function xAt(i) { return n === 1 ? marginLeft + plotW / 2 : marginLeft + (i / (n - 1)) * plotW; }
+        function yAt(v) { return marginTop + plotH - (v / yAxis.top) * plotH; }
+
+        let gridSvg = '', yLabelsSvg = '';
+        for (let s = 0; s <= 4; s++) {
+            const v = yAxis.step * s;
+            const y = yAt(v);
+            gridSvg += '<line x1="' + marginLeft + '" y1="' + y + '" x2="' + (width - marginRight) + '" y2="' + y + '" stroke="var(--gridline)" stroke-width="1"/>';
+            yLabelsSvg += '<text x="' + (marginLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="var(--text-muted)">' + Math.round(v) + '</text>';
+        }
+
+        const labelEvery = Math.max(1, Math.ceil(n / 8));
+        let xLabelsSvg = '';
+        buckets.forEach(function (b, i) {
+            if (i % labelEvery === 0 || i === n - 1) {
+                xLabelsSvg += '<text x="' + xAt(i) + '" y="' + (height - 8) + '" text-anchor="middle" font-size="11" fill="var(--text-muted)">' + b.label + '</text>';
+            }
+        });
+
+        let pathD = '';
+        buckets.forEach(function (b, i) {
+            pathD += (i === 0 ? 'M' : 'L') + xAt(i) + ',' + yAt(b.value) + ' ';
+        });
+        const lastX = xAt(n - 1), lastY = yAt(buckets[n - 1].value);
+
+        let tableRows = '';
+        buckets.forEach(function (b) {
+            tableRows += '<tr><td>' + b.fullLabel + '</td><td class="num">' + b.value + '</td></tr>';
+        });
+
+        root.innerHTML =
+            '<svg viewBox="0 0 ' + width + ' ' + height + '" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Line chart of total page visits over the selected period">' +
+                '<g class="grid">' + gridSvg + '</g>' +
+                '<line x1="' + marginLeft + '" y1="' + (height - marginBottom) + '" x2="' + (width - marginRight) + '" y2="' + (height - marginBottom) + '" stroke="var(--baseline)" stroke-width="1"/>' +
+                '<g class="y-labels">' + yLabelsSvg + '</g>' +
+                '<g class="x-labels">' + xLabelsSvg + '</g>' +
+                '<path d="' + pathD.trim() + '" fill="none" stroke="var(--series-1)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>' +
+                '<circle cx="' + lastX + '" cy="' + lastY + '" r="5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2"/>' +
+                '<text x="' + lastX + '" y="' + (lastY - 12) + '" text-anchor="end" font-size="12" font-weight="700" fill="var(--text-primary)">' + buckets[n - 1].value + '</text>' +
+                '<g class="hover-crosshair" style="display:none;">' +
+                    '<line class="crosshair-line" y1="' + marginTop + '" y2="' + (height - marginBottom) + '" stroke="var(--baseline)" stroke-width="1"/>' +
+                    '<circle class="hover-dot" r="5" fill="var(--series-1)" stroke="var(--surface-1)" stroke-width="2"/>' +
+                '</g>' +
+                '<rect class="hover-overlay" x="' + marginLeft + '" y="' + marginTop + '" width="' + plotW + '" height="' + plotH + '" fill="transparent" tabindex="0"/>' +
+            '</svg>' +
+            '<div class="chart-tooltip"></div>' +
+            '<details class="chart-table-toggle"><summary>View as table</summary>' +
+                '<table class="stats-table"><tr><th>Period</th><th class="num">Visits</th></tr>' + tableRows + '</table>' +
+            '</details>';
+
+        wireChartHover(root, buckets, xAt, yAt);
+    }
+
+    /* ---------- time period filter ---------- */
+    const filterStart = document.getElementById('filterStart');
+    const filterEnd = document.getElementById('filterEnd');
+    const filterRangeNote = document.getElementById('filterRangeNote');
+
+    function rangeBounds() {
+        const startVal = filterStart.value;
+        const endVal = filterEnd.value;
+        const startMs = startVal ? new Date(startVal + 'T00:00:00').getTime() : null;
+        const endMs = endVal ? new Date(endVal + 'T23:59:59.999').getTime() : null;
+        return { startMs: startMs, endMs: endMs };
+    }
+    function inRange(ts, bounds) {
+        if (bounds.startMs !== null && ts < bounds.startMs) return false;
+        if (bounds.endMs !== null && ts > bounds.endMs) return false;
+        return true;
+    }
+
+    function render() {
+        const bounds = rangeBounds();
+        const allEvents = window.STW ? STW.readEvents() : [];
+        const allComments = window.STW ? STW.allComments() : {};
+
+        const events = allEvents.filter(function (e) { return inRange(e.ts, bounds); });
+        const comments = {};
+        Object.keys(allComments).forEach(function (key) {
+            if (inRange(allComments[key].ts, bounds)) comments[key] = allComments[key];
+        });
+
+        if (bounds.startMs === null && bounds.endMs === null) {
+            filterRangeNote.textContent = 'Showing all-time data.';
+        } else {
+            filterRangeNote.textContent = 'Showing ' + (filterStart.value || 'the beginning') + ' to ' + (filterEnd.value || 'now') + '.';
+        }
+
+        const totalVisits = events.filter(function (e) { return e.type === 'visit'; }).length;
+        const totalResolved = events.filter(function (e) { return e.type === 'resolved'; }).length;
+        const issueVisits = events.filter(function (e) {
+            return e.type === 'visit' && e.step !== 'select' && e.step !== 'resolved' && e.step !== 'hub' && e.step !== 'summary';
+        }).length;
+        const noteCount = Object.keys(comments).filter(function (key) {
+            return key.indexOf('::') !== -1 && key.slice(0, key.indexOf('::')) !== PAGE_KEY;
+        }).length;
+
+        document.getElementById('tileVisits').textContent = totalVisits;
+        document.getElementById('tileResolved').textContent = totalResolved;
+        document.getElementById('tileRate').textContent = issueVisits > 0 ? Math.round((totalResolved / issueVisits) * 100) + '%' : '—';
+        document.getElementById('tileNotes').textContent = noteCount;
+
+        const visitTs = events.filter(function (e) { return e.type === 'visit'; }).map(function (e) { return e.ts; });
+        renderVisitsChart(document.getElementById('visitsChartRoot'), document.getElementById('chartRangeLabel'), bounds, visitTs, filterRangeNote.textContent);
+
+        function countFor(page, step, type) {
+            return events.filter(function (e) { return e.page === page && e.step === step && e.type === type; }).length;
+        }
+
+        const blocksEl = document.getElementById('systemBlocks');
+        blocksEl.innerHTML = '';
+        SYSTEMS.forEach(function (sys) {
+            const block = document.createElement('div');
+            block.className = 'system-block';
+
+            const head = document.createElement('div');
+            head.className = 'system-head';
+            head.innerHTML = '<h3>' + sys.name + '</h3><span class="badge-pill ' + sys.badge + '">' + sys.badgeText + '</span>';
+            block.appendChild(head);
+
+            const table = document.createElement('table');
+            table.className = 'stats-table';
+            const rows = Object.keys(sys.issues).map(function (stepId) {
+                const title = sys.issues[stepId];
+                const visits = countFor(sys.key, stepId, 'visit');
+                const resolved = countFor(sys.key, stepId, 'resolved');
+                const hasNote = !!comments[sys.key + '::' + stepId];
+                return { stepId: stepId, title: title, visits: visits, resolved: resolved, hasNote: hasNote };
+            });
+            const anyData = rows.some(function (r) { return r.visits > 0 || r.resolved > 0; });
+            let body = '<tr><th>Issue</th><th class="num">Visits</th><th class="num">Resolved</th><th class="num">Notes</th></tr>';
+            if (!anyData) {
+                body += '<tr class="empty-row"><td colspan="4">No activity recorded for this system in the selected period.</td></tr>';
+            } else {
+                rows.forEach(function (r) {
+                    body += '<tr><td>' + r.title + '</td><td class="num">' + r.visits + '</td><td class="num">' + r.resolved + '</td>' +
+                        '<td class="num">' + (r.hasNote ? '<span class="notes-check">&#10003;</span>' : '<span class="notes-dash">&mdash;</span>') + '</td></tr>';
+                });
+            }
+            table.innerHTML = body;
+            block.appendChild(table);
+
+            const commentHolder = document.createElement('div');
+            commentHolder.id = 'commentSystem' + sys.key;
+            block.appendChild(commentHolder);
+
+            blocksEl.appendChild(block);
+            mountCommentBox('commentSystem' + sys.key, 'system-' + sys.key);
+        });
+
+        const notesEl = document.getElementById('recentNotes');
+        const noteEntries = Object.keys(comments).filter(function (key) {
+            return key.indexOf('::') !== -1 && key.slice(0, key.indexOf('::')) !== PAGE_KEY;
+        }).map(function (key) {
+            const idx = key.indexOf('::');
+            const page = key.slice(0, idx);
+            const step = key.slice(idx + 2);
+            const c = comments[key];
+            return { page: page, step: step, text: c.text, ts: c.ts };
+        }).sort(function (a, b) { return b.ts - a.ts; });
+
+        if (!noteEntries.length) {
+            notesEl.innerHTML = '<div class="empty-state">No notes have been saved yet in the selected period. Notes added on any issue page will appear here.</div>';
+        } else {
+            notesEl.innerHTML = '';
+            noteEntries.forEach(function (n) {
+                const card = document.createElement('div');
+                card.className = 'note-card';
+                const when = new Date(n.ts).toLocaleString();
+                card.innerHTML = '<div class="note-meta">' + (PAGE_NAMES[n.page] || n.page) + ' &middot; ' + issueTitle(n.page, n.step) + ' &middot; ' + when + '</div>' +
+                    '<div class="note-text"></div>';
+                card.querySelector('.note-text').textContent = n.text;
+                notesEl.appendChild(card);
+            });
+        }
+
+        mountCommentBox('commentOverview', 'overview');
+        mountCommentBox('commentVisitsChart', 'visits-chart');
+        mountCommentBox('commentRecentNotes', 'recent-notes');
+    }
+
+    filterStart.addEventListener('change', render);
+    filterEnd.addEventListener('change', render);
+    document.getElementById('filterClear').addEventListener('click', function () {
+        filterStart.value = '';
+        filterEnd.value = '';
+        render();
+    });
+
+    document.getElementById('clearBtn').addEventListener('click', function () {
+        const ok = window.confirm('Clear all locally stored visit counts, resolved counts and notes? This cannot be undone.');
+        if (!ok) return;
+        if (window.STW) STW.clearAll();
+        document.getElementById('clearStatus').textContent = 'All statistics cleared.';
+        render();
+    });
+
+    render();
+})();
+</script>
+
+</body>
+</html>
