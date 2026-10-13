@@ -101,6 +101,7 @@
     background: #fff; border: 1px solid var(--line);
   }
   .dcard .dcard-icon img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .dcard .dcard-icon svg { display: block; width: 100%; height: 100%; padding: 10px; box-sizing: border-box; color: var(--violet); fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 
   .badge-pill {
     font-size: 8.5px; letter-spacing: 0.05em; text-transform: uppercase; padding: 4px 9px;
@@ -290,6 +291,14 @@
             <h3>Handset Diagnostics</h3>
             <div class="dcard-sub">Find and fix an offline puck or handset.</div>
           </button>
+          <button type="button" class="dcard" data-issue="mobile-app" onclick="goToStep('mobile-app')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/mobile-app-existing-user.png" alt=""></div>
+              <span class="badge-pill badge-violet">Mobile App</span>
+            </div>
+            <h3>Mobile App Issues</h3>
+            <div class="dcard-sub">Registration, login, loading, tap-in, check-in or booking-confirmation problems with the Floorsense mobile app.</div>
+          </button>
           <a class="dcard" data-issue="vpn-restart" href="Smartalock_Interactive_Troubleshooting_Wizard.html?issue=vpn-restart">
             <div class="dcard-top">
               <div class="dcard-icon"><img src="images/vpn-site-floorplan.png" alt=""></div>
@@ -384,7 +393,7 @@
         </div>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If desks remain offline after confirming the cable is fully seated and waiting the full 1–2 minute reconnect window, escalate to Floorsense technical support for radio antenna / controller diagnostics.
+            <strong>Escalation Criteria:</strong> If desks remain offline after confirming the cable is fully seated and waiting the full 1&ndash;2 minute reconnect window, tap the <strong>Contact support</strong> button below for radio antenna / controller diagnostics.
         </div>
 
         <div class="page-nav">
@@ -576,12 +585,12 @@
             <img src="images/handset-power-jack.png" alt="Close-up of the round power jack and cable that plugs into the back of the handset">
             <div class="caption">The power jack connects to the back of the handset.</div>
         </div>
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the handset still shows an "X" screen after power cycling, email <a href="mailto:support@smartalock.com">support@smartalock.com</a> with the site name, desk number, and the troubleshooting steps already completed.
-        </div>
-
         <div class="callout callout-success">
             <strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the handset still shows an &ldquo;X&rdquo; screen after power cycling, tap the <strong>Contact support</strong> button below and include the site name and desk number.
         </div>
 
         <div class="page-nav">
@@ -665,7 +674,7 @@
         </div>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the sensor still shows few or no readings after reseating the audio jack and waiting the full 3–5 minutes, escalate to Floorsense technical support with the site name, desk number, and the Desks Motion Sensor Readings Report showing the affected sensor.
+            <strong>Escalation Criteria:</strong> If the sensor still shows few or no readings after reseating the audio jack and waiting the full 3&ndash;5 minutes, tap the <strong>Contact support</strong> button below and include the site name, desk number, and the Desks Motion Sensor Readings Report showing the affected sensor.
         </div>
 
         <div class="page-nav">
@@ -715,11 +724,506 @@
         </div>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the puck/handset still shows offline after reconnecting all cables and checking for damage, escalate to Floorsense technical support with the site name, desk number, and the Offline Desks report showing the affected desk.
+            <strong>Escalation Criteria:</strong> If the puck/handset still shows offline after reconnecting all cables and checking for damage, tap the <strong>Contact support</strong> button below and include the site name, desk number, and the Offline Desks report showing the affected desk.
         </div>
 
         <div class="page-nav">
           <button type="button" class="page-nav-btn" onclick="goToStep('motion-sensor')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-app')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5: MOBILE APP ISSUES (SUB-HUB) -->
+      <div id="step-mobile-app" class="wizard-step">
+        <a href="#" class="crumb-link" onclick="goToStep('select');return false;">&larr; All issues</a>
+
+        <div class="decision-grid">
+          <button type="button" class="dcard" data-app-issue="mobile-existing-user" onclick="goToStep('mobile-existing-user')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/mobile-app-existing-user.png" alt=""></div>
+              <span class="badge-pill badge-violet">Account</span>
+            </div>
+            <h3>Existing User</h3>
+            <div class="dcard-sub">Registration fails with "Registration failed: Existing user".</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-account-missing" onclick="goToStep('mobile-account-missing')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16.5 9.5l5 5M21.5 9.5l-5 5"/></svg></div>
+              <span class="badge-pill badge-violet">Account</span>
+            </div>
+            <h3>User Account Does Not Exist</h3>
+            <div class="dcard-sub">Login fails with "Selected user account does not exist".</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-forgot-password" onclick="goToStep('mobile-forgot-password')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="15" r="3.8"/><path d="M10.8 12.2L20 3M16.5 6.5l3 3M13.5 9.5l2.3 2.3"/></svg></div>
+              <span class="badge-pill badge-violet">Account</span>
+            </div>
+            <h3>Forgot My Password</h3>
+            <div class="dcard-sub">The password has been forgotten or is not being accepted at login.</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-setup-code" onclick="goToStep('mobile-setup-code')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5.5" width="18" height="13" rx="2.5"/><path d="M3.5 7.5l8.5 6 8.5-6"/></svg></div>
+              <span class="badge-pill badge-violet">Account</span>
+            </div>
+            <h3>Where to Find the Setup Code</h3>
+            <div class="dcard-sub">The app asks for a Setup Code and it's not clear where to get it.</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-not-loading" onclick="goToStep('mobile-not-loading')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.7-6"/><path d="M20.5 3.5V8H16"/></svg></div>
+              <span class="badge-pill badge-violet">App</span>
+            </div>
+            <h3>App Is Not Loading</h3>
+            <div class="dcard-sub">The app won't open, or stays on its loading screen.</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-white-screen" onclick="goToStep('mobile-white-screen')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6.5" y="2.5" width="11" height="19" rx="2.6"/><rect x="9" y="6" width="6" height="10" rx="1" stroke-dasharray="2 2"/></svg></div>
+              <span class="badge-pill badge-violet">App</span>
+            </div>
+            <h3>White Screen</h3>
+            <div class="dcard-sub">The app opens but only shows a blank white page.</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-cannot-tap-in" onclick="goToStep('mobile-cannot-tap-in')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="8" width="8.5" height="13.5" rx="2.2"/><path d="M15.5 10a4.5 4.5 0 0 1 0 5M18.5 7.5a8.5 8.5 0 0 1 0 10"/></svg></div>
+              <span class="badge-pill badge-violet">App</span>
+            </div>
+            <h3>I Cannot Tap In, Check In or Confirm My Booking</h3>
+            <div class="dcard-sub">Tapping in, checking in or confirming a booking with the phone doesn't work.</div>
+          </button>
+          <button type="button" class="dcard" data-app-issue="mobile-booking-gone" onclick="goToStep('mobile-booking-gone')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M10 13.5l4 4M14 13.5l-4 4"/></svg></div>
+              <span class="badge-pill badge-violet">App</span>
+            </div>
+            <h3>My Booking Is Gone</h3>
+            <div class="dcard-sub">The booking has disappeared from the app and the desk shows as available.</div>
+          </button>
+        </div>
+
+        <div class="preview-panel" id="previewPanelApp" role="button" tabindex="0" aria-label="Example image preview. Hover an issue above to preview it, or activate to open the issue currently shown.">
+          <div class="preview-frame">
+            <img id="previewImgApp" src="" alt="">
+            <div class="preview-empty" id="previewEmptyApp"></div>
+          </div>
+          <div class="preview-caption" id="previewCaptionApp">&nbsp;</div>
+          <div class="preview-hint">Hover an issue above to preview it here — or tap the image to open it</div>
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-diagnostics')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next disabled">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5a: EXISTING USER -->
+      <div id="step-mobile-existing-user" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="example-figure compact">
+            <img src="images/mobile-app-existing-user.png" alt="Floorsense / Smartalock Cloud Registration page showing a red banner reading Registration failed: Existing user, above the Name, Email, Password and Confirm Password fields and a Register button, with an Already have an account? link underneath">
+            <div class="caption">Registering with an email address that already has an account shows &ldquo;Registration failed: Existing user&rdquo;.</div>
+        </div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> Registration fails with <strong>&ldquo;Registration failed: Existing user&rdquo;</strong> &mdash; a Floorsense / Smartalock cloud account already exists for that email address, so a new one can&rsquo;t be created.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-1">
+                <label for="ma-1"><strong>Resolution &mdash; Log in instead:</strong> Tap <strong>Already have an account?</strong> at the bottom of the registration page, then log in with the same email address and your existing password.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-2">
+                <label for="ma-2"><strong>Don&rsquo;t remember the password?</strong> Tap <strong>Forgot my password</strong> on the login page and reset it &mdash; see <a href="#" onclick="goToStep('mobile-forgot-password');return false;">Forgot My Password</a>.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> You can log in with your existing account and reach the Floorsense home screen.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If you still can&rsquo;t log in, tap the <strong>Contact support</strong> button below and include the email address used and a screenshot of the message.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-app')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Mobile App Issues
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-account-missing')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5a-2: USER ACCOUNT DOES NOT EXIST -->
+      <div id="step-mobile-account-missing" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> Logging in to the Floorsense mobile app fails with the message <em>&ldquo;Selected user account does not exist&rdquo;</em>. This usually means the user hasn&rsquo;t been created, or doesn&rsquo;t have permission to access Floorsense, in the company&rsquo;s Active Directory.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-20">
+                <label for="ma-20"><strong>Check the email address:</strong> Make sure the email address entered on the login page is your work email, typed correctly.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-21">
+                <label for="ma-21"><strong>Talk to an administrator:</strong> Ask them to check that your user has been created in the company&rsquo;s Active Directory and has permission to access Floorsense, and to fix it if not.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-22">
+                <label for="ma-22"><strong>Try again:</strong> Once the administrator confirms the account is set up, close and reopen the Floorsense app and log in again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> You can log in to the Floorsense mobile app and reach the home screen.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If you still can&rsquo;t log in after an administrator has confirmed your account exists and has access, tap the <strong>Contact support</strong> button below and include the email address used and a screenshot of the message.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-existing-user')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-forgot-password')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5b: FORGOT MY PASSWORD -->
+      <div id="step-mobile-forgot-password" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Non-SSO users only:</strong> The steps below work only if you self-registered at Floorsense. If logging in redirects you to your company&rsquo;s own sign-in page (single sign-on), your password is managed by your company, not by Floorsense &mdash; you can&rsquo;t change it in the app, so contact your IT team.
+        </div>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The password has been forgotten, or isn&rsquo;t accepted when logging in to the Floorsense mobile app.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-3">
+                <label for="ma-3"><strong>Resolution &mdash; Reset it:</strong> On the login page, tap <strong>Forgot my password</strong> below the login window and follow the prompts to reset your password.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-4">
+                <label for="ma-4"><strong>Choose a valid new password:</strong> at least 8 characters, using 3 of the 4 character types &mdash; capital letters, lowercase letters, numbers and special characters (e.g. @#$%^*()).</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-5">
+                <label for="ma-5"><strong>Log in</strong> with your email address and the new password.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> You can log in to the Floorsense mobile app with your new password.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If you still need help, tap the <strong>Contact support</strong> button below and include the email address used and a screenshot of the issue where possible.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-account-missing')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-setup-code')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5b-2: WHERE TO FIND THE SETUP CODE -->
+      <div id="step-mobile-setup-code" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The Floorsense mobile app asks for a <strong>Setup Code</strong> and you don&rsquo;t know where to find it.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-23">
+                <label for="ma-23"><strong>Open your activation email:</strong> Find the activation email you received for your Floorsense account.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-24">
+                <label for="ma-24"><strong>Copy the Setup Code:</strong> The setup code is part of the unique activation link. Open your activation email and copy the alphanumeric code after <strong>code=</strong>.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> You have your Setup Code and can continue setting up the Floorsense mobile app.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If you still can&rsquo;t find the Setup Code, tap the <strong>Contact support</strong> button below and include the email address used and a screenshot of the screen asking for it.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-forgot-password')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-not-loading')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5c: APP IS NOT LOADING -->
+      <div id="step-mobile-not-loading" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The Floorsense mobile app won&rsquo;t open, or stays on its loading screen and never reaches the home screen.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-6">
+                <label for="ma-6"><strong>Phone services:</strong> Make sure <strong>Location</strong>, <strong>Bluetooth</strong> and <strong>Internet</strong> are all switched ON. Use mobile data or Wi-Fi, whichever is stronger.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-7">
+                <label for="ma-7"><strong>Supported phone:</strong> The app supports iPhone 5, 5S, 6, 6S and later, and Android 7.1 and later. It works on smartphones only &mdash; tablets are not supported.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-8">
+                <label for="ma-8"><strong>Give it time:</strong> On first launch the app downloads the floor plan. Allow 1&ndash;3 minutes on a stable connection and keep the app open.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+        <div class="subhead">Still not loading? Try a clean reinstall</div>
+        <ol class="step-list">
+            <li>Force-quit the Floorsense app.</li>
+            <li>Clear its cache/data (Android: App info &rarr; Storage &rarr; Clear cache/data).</li>
+            <li>Uninstall the app.</li>
+            <li>Reinstall it from your app store.</li>
+            <li>Make sure <strong>Location, Bluetooth and Internet are ON</strong> before opening it again.</li>
+            <li>On first run, select <strong>Allow</strong> for Location, Bluetooth and Notifications when prompted.</li>
+        </ol>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The app opens, downloads the floor plan and shows the Floorsense home screen.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the app still won&rsquo;t load after a clean reinstall, tap the <strong>Contact support</strong> button below and include your phone model, its operating system version and a screenshot of the issue.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-setup-code')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-white-screen')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5d: WHITE SCREEN -->
+      <div id="step-mobile-white-screen" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The app opens, but only a blank white page is shown instead of the floor plan.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="ma-9">
+                <label for="ma-9"><strong>Wait first:</strong> If it has been less than 3 minutes since you first opened the app, or your connection is unstable, allow 1&ndash;3 minutes for the floor plan to download. Use a stable Wi-Fi or mobile data connection and keep the app open.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+        <div class="subhead">Still blank after waiting? Reset the app</div>
+        <ol class="step-list">
+            <li>Close the Floorsense app completely.</li>
+            <li>Open your phone&rsquo;s <strong>Settings</strong> and find the Floorsense app.</li>
+            <li>Choose the option to <strong>reset</strong> the app.</li>
+            <li>Relaunch Floorsense and allow the floor plan to download again.</li>
+        </ol>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> The floor plan downloads and the Floorsense home screen is shown.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the page is still blank after resetting the app, tap the <strong>Contact support</strong> button below and include a screenshot of the issue.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-not-loading')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-cannot-tap-in')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5e: I CANNOT TAP IN, CHECK IN OR CONFIRM MY BOOKING -->
+      <div id="step-mobile-cannot-tap-in" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The phone can&rsquo;t <strong>tap in</strong>, <strong>check in</strong> or <strong>confirm a booking</strong> &mdash; the app doesn&rsquo;t detect the desk puck, so the desk is not checked in or the booking is not confirmed.
+        </div>
+        <div class="subhead">How to check in</div>
+        <ol class="step-list" data-sr-group="How to check in">
+            <li>Open the Floorsense app.</li>
+            <li>Go to your <strong>pre-booked</strong> or <strong>preferred</strong> desk and put your phone <strong>on the desk, close to the handset</strong>.</li>
+            <li>Wait about <strong>15 seconds</strong> to allow the phone to communicate with the handset.</li>
+            <li>If it works, a <strong>Confirm / Ignore</strong> prompt appears &mdash; tap <strong>Confirm</strong>.</li>
+        </ol>
+
+        <div class="subhead">Didn&rsquo;t work? Troubleshooting</div>
+        <ul class="check-list" data-sr-group="Troubleshooting">
+            <li class="check-item">
+                <input type="checkbox" id="ma-10">
+                <label for="ma-10"><strong>Location and Bluetooth:</strong> Make sure both are switched ON for the Floorsense app in your phone&rsquo;s Settings, then reopen Floorsense and try to check in again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-11">
+                <label for="ma-11"><strong>Desk was not ignored:</strong> If <strong>Ignore</strong> was tapped on the Confirm / Ignore prompt earlier, the prompt stops appearing for that desk. Open the <strong>Desks</strong> tab at the bottom of the app, scroll down and select <strong>Stop Ignoring</strong>, then try to check in again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-12">
+                <label for="ma-12"><strong>Try another desk:</strong> Put your phone on a different desk, close to its handset, and check in there to see whether it works on other desks. If it does, note the first desk&rsquo;s number for support &mdash; the problem is likely with that desk.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="subhead">Still not working? Try a clean reinstall</div>
+        <p style="font-size:14px;color:var(--ink-soft);margin:0 0 8px;">The app may not have full access to Bluetooth and/or Location.</p>
+        <ol class="step-list" data-sr-group="Troubleshooting">
+            <li>Force-quit the Floorsense app.</li>
+            <li>Clear its cache/data (Android: App info &rarr; Storage &rarr; Clear cache/data).</li>
+            <li>Uninstall the app.</li>
+            <li>Reinstall it from your app store.</li>
+            <li>On first run, select <strong>Allow</strong> for Location, Bluetooth and Notifications when prompted, then try to check in again.</li>
+        </ol>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If you still can&rsquo;t tap in, check in or confirm your booking after a clean reinstall, tap the <strong>Contact support</strong> button below and include the site name, the desk number(s) you tried, whether another desk worked, and a screenshot of the issue.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-white-screen')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('mobile-booking-gone')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 5f: MY BOOKING IS GONE -->
+      <div id="step-mobile-booking-gone" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('mobile-app');return false;">&larr; Mobile App Issues</a>
+
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> A desk booking is no longer shown in the Floorsense app, and the desk now shows as <strong>available</strong>.
+        </div>
+        <div class="subhead">First, quick checks</div>
+        <ul class="check-list" data-sr-group="Quick checks">
+            <li class="check-item">
+                <input type="checkbox" id="ma-13">
+                <label for="ma-13"><strong>Refresh the app:</strong> On the home screen, touch the top of the screen and drag your finger down without lifting it (pull-to-refresh), then check for the booking again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-15">
+                <label for="ma-15"><strong>Check the Desks tab:</strong> Open the <strong>Desks</strong> tab at the bottom of the app and look for the booking there, including bookings for other days.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="subhead">Most common cause: the booking was released</div>
+        <ul class="check-list" data-sr-group="Booking released">
+            <li class="check-item">
+                <input type="checkbox" id="ma-16">
+                <label for="ma-16"><strong>Arrived late?</strong> If you arrived after the booking&rsquo;s start time and didn&rsquo;t check in or confirm in time, the booking is released and the desk shows as available again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-17">
+                <label for="ma-17"><strong>Ask an administrator to check the release policy settings:</strong> They can see how long after the start time an unconfirmed booking is released, and confirm in the desk&rsquo;s Event Log in the admin portal that this booking was released, and when. The policy can be reviewed if it releases bookings too early.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="subhead">Less common: the Floorsense system may be offline</div>
+        <ul class="check-list" data-sr-group="System out of date">
+            <li class="check-item">
+                <input type="checkbox" id="ma-18">
+                <label for="ma-18"><strong>Test with a new booking:</strong> Book a desk in the app on the spot (for right now), then check the handset on that desk. If the new booking does not show on the handset, the Floorsense system may have gone offline.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="ma-19">
+                <label for="ma-19"><strong>Talk to an administrator:</strong> This is a major issue. Ask them to check the site&rsquo;s internet connection and the Floorsense system&rsquo;s connection and fix it, so bookings and desk status update again.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the booking is still missing after an administrator has checked the release policy and the system&rsquo;s internet connection, tap the <strong>Contact support</strong> button below and include the desk number, the booking date and time, and a screenshot of the Desks tab.
+        </div>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> You know whether the booking was released or the system went offline, and the desk can be booked again once the policy or the connection is sorted out.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('mobile-cannot-tap-in')">
             <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
             Previous issue
           </button>
@@ -755,6 +1259,7 @@
 </main>
 
 <script src="wizard-data.js"></script>
+<script src="support-request.js"></script>
 <script>
     const PAGE_KEY = 'Desk';
 
@@ -777,6 +1282,15 @@
         'handset-x-screen': { title: 'Stuck on an "X" Screen', sub: 'Match this against the "X" screen, then follow the fix below.' },
         'motion-sensor': { title: 'Motion Sensor Diagnostics', sub: 'Check desk occupancy data to identify malfunctioning sensors, using either the Floorplan Heatmap or the Desks Motion Sensor Readings Report below.' },
         'handset-diagnostics': { title: 'Handset Diagnostics', sub: 'The admin portal also provides reports for identifying and diagnosing offline or malfunctioning pucks, with detailed status, performance and historical data.' },
+        'mobile-app': { title: 'Mobile App Issues', sub: 'Select what you\'re seeing in the Floorsense mobile app to see its fix.' },
+        'mobile-existing-user': { title: 'Existing User', sub: 'Registration fails because an account already exists for that email address.' },
+        'mobile-account-missing': { title: 'User Account Does Not Exist', sub: 'Login fails because the user has not been created, or has no access to Floorsense, in the company\'s Active Directory.' },
+        'mobile-forgot-password': { title: 'Forgot My Password', sub: 'Reset a forgotten password from the login page of the Floorsense mobile app.' },
+        'mobile-setup-code': { title: 'Where to Find the Setup Code', sub: 'The Setup Code is inside your unique activation link, in the activation email.' },
+        'mobile-not-loading': { title: 'App Is Not Loading', sub: 'Check the phone, give the app time to download the floor plan, then reinstall if it is still stuck.' },
+        'mobile-white-screen': { title: 'White Screen', sub: 'Wait for the floor plan to download, then reset the app if the page stays blank.' },
+        'mobile-cannot-tap-in': { title: 'I Cannot Tap In, Check In or Confirm My Booking', sub: 'Follow the check-in steps, then troubleshoot the phone settings and reinstall the app if tapping in, checking in or confirming a booking still fails.' },
+        'mobile-booking-gone': { title: 'My Booking Is Gone', sub: 'The booking has disappeared from the app and the desk shows as available.' },
         'resolved': { title: 'Troubleshooting Complete' }
     };
     const topFrameH1 = document.querySelector('#topFrameHeading h1.hero-title');
@@ -832,6 +1346,7 @@
                 stopSubRotation();
             }
         }
+        if (stepId === 'mobile-app') { appHub.start(); } else { appHub.stop(); }
     }
 
     document.querySelectorAll('.check-item input[type="checkbox"]').forEach(function (cb) {
@@ -853,9 +1368,10 @@
         'handset-error': { title: 'Handset/Display Screen Issues', image: 'images/handset-x-screen.png', alt: 'Floorsense handset showing a large white X on its screen' },
         'motion-sensor': { title: 'Motion Sensor Diagnostics', image: 'images/admin-desk-analytics-demo.gif', alt: 'Animated demo of the admin portal Desk Analytics Charts View: clicking a desk opens its Desk Statistics Overview showing usage ratios' },
         'handset-diagnostics': { title: 'Handset Diagnostics', image: 'images/offline-puck-floorplan.png', alt: 'Floor plan diagram showing an offline puck as a pale, washed-out icon, circled in red' },
+        'mobile-app': { title: 'Mobile App Issues', image: 'images/mobile-app-existing-user.png', alt: 'Floorsense / Smartalock Cloud Registration page showing the error Registration failed: Existing user' },
         'vpn-restart': { title: 'No Mapping / Site Unreachable', image: 'images/vpn-site-floorplan.png', alt: 'Office floor plan diagram showing the desk and room layout for the site' }
     };
-    const ROTATION_ORDER = ['desks-offline', 'handset-error', 'motion-sensor', 'handset-diagnostics', 'vpn-restart'];
+    const ROTATION_ORDER = ['desks-offline', 'handset-error', 'motion-sensor', 'handset-diagnostics', 'mobile-app', 'vpn-restart'];
     /* 'vpn-restart' is an external link into the Locker System wizard rather than a goToStep()
        target on this page — see EXTERNAL_ISSUE_LINKS below, which activatePreviewTarget() checks
        before falling back to goToStep(). */
@@ -896,6 +1412,7 @@
         'handset-error': 'Handset/Display Screen Issues',
         'motion-sensor': 'Motion Sensor Diagnostics',
         'handset-diagnostics': 'Handset Diagnostics',
+        'mobile-app': 'Mobile App Issues',
         'vpn-restart': 'No Mapping / Site Unreachable'
     };
 
@@ -1032,6 +1549,75 @@
     renderSubPreview(SUB_ROTATION_ORDER[0]);
     renderPreview(ROTATION_ORDER[0]);
 
+    /* ---------- Mobile App Issues sub-hub preview ---------- */
+    /* Only issues with a real example image are in APP_ISSUE_PREVIEWS; the others fall back to the
+       "no example image yet" placeholder (title shown). Add an entry here when a screenshot exists. */
+    const APP_ISSUE_PREVIEWS = {
+        'mobile-existing-user': { title: 'Existing User', image: 'images/mobile-app-existing-user.png', alt: 'Floorsense / Smartalock Cloud Registration page showing the error Registration failed: Existing user' }
+    };
+    const APP_ROTATION_ORDER = ['mobile-existing-user'];
+    const ALL_APP_ISSUE_TITLES = {
+        'mobile-existing-user': 'Existing User',
+        'mobile-account-missing': 'User Account Does Not Exist',
+        'mobile-forgot-password': 'Forgot My Password',
+        'mobile-setup-code': 'Where to Find the Setup Code',
+        'mobile-not-loading': 'App Is Not Loading',
+        'mobile-white-screen': 'White Screen',
+        'mobile-cannot-tap-in': 'I Cannot Tap In, Check In or Confirm My Booking',
+        'mobile-booking-gone': 'My Booking Is Gone'
+    };
+    const appHub = (function () {
+        const panel = document.getElementById('previewPanelApp');
+        const img = document.getElementById('previewImgApp');
+        const empty = document.getElementById('previewEmptyApp');
+        const caption = document.getElementById('previewCaptionApp');
+        const stepEl = document.getElementById('step-mobile-app');
+        let hovering = false, target = APP_ROTATION_ORDER[0], timer = null, idx = 0;
+
+        function render(issueId) {
+            const data = APP_ISSUE_PREVIEWS[issueId];
+            target = issueId;
+            if (!data) {
+                panel.classList.add('empty');
+                empty.textContent = ALL_APP_ISSUE_TITLES[issueId] || '';
+                caption.textContent = 'No example image yet \u2014 tap to open this issue';
+                return;
+            }
+            panel.classList.remove('empty');
+            img.classList.add('fading');
+            window.setTimeout(function () {
+                img.src = data.image;
+                img.alt = data.alt;
+                caption.textContent = data.title;
+                img.classList.remove('fading');
+            }, 160);
+        }
+        function stop() { if (timer) window.clearInterval(timer); timer = null; }
+        function start() {
+            stop();
+            if (hovering || APP_ROTATION_ORDER.length < 2) return;
+            timer = window.setInterval(function () {
+                idx = (idx + 1) % APP_ROTATION_ORDER.length;
+                render(APP_ROTATION_ORDER[idx]);
+            }, 3200);
+        }
+        stepEl.querySelectorAll('.dcard[data-app-issue]').forEach(function (card) {
+            function over() { hovering = true; stop(); render(card.dataset.appIssue); }
+            function out() { hovering = false; if (stepEl.classList.contains('active')) start(); }
+            card.addEventListener('mouseenter', over);
+            card.addEventListener('focus', over);
+            card.addEventListener('mouseleave', out);
+            card.addEventListener('blur', out);
+        });
+        function activate() { if (target) goToStep(target); }
+        panel.addEventListener('click', activate);
+        panel.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); }
+        });
+        render(APP_ROTATION_ORDER[0]);
+        return { start: start, stop: stop };
+    })();
+
     /* ---------- per-issue notes/comment box ---------- */
     (function setupCommentBoxes() {
         function debounce(fn, wait) {
@@ -1067,6 +1653,9 @@
     })();
 
     goToStep('select');
+
+    /* ---------- "Contact support" button (see support-request.js) ---------- */
+    if (window.SupportRequest) SupportRequest.init({ pageKey: PAGE_KEY, titles: STEP_TITLES });
 </script>
 
 </body>

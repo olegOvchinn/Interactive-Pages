@@ -361,13 +361,13 @@
             </li>
         </ul>
 
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If LAN port LEDs remain completely off after checking physical cables and power, escalate to local IT support to verify patch panel port status and VLAN availability. If the whole site (admin portal and mobile app) is also unreachable, see <a href="#" onclick="goToStep('vpn-restart');return false;">Site Unreachable</a>.
-        </div>
-
         <div class="example-figure zoomable">
             <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
             <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If LAN port LEDs remain completely off after checking physical cables and power, tap the <strong>Contact support</strong> button below and ask local IT support to verify patch panel port status and VLAN availability. If the whole site (admin portal and mobile app) is also unreachable, see <a href="#" onclick="goToStep('vpn-restart');return false;">Site Unreachable</a>.
         </div>
 
         <div class="page-nav">
@@ -412,13 +412,13 @@
             </li>
         </ul>
 
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If entire hub rows fail to report despite correct wiring, escalate to Facilities/Hardware support for Hub replacement.
-        </div>
-
         <div class="example-figure zoomable">
             <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
             <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If entire hub rows fail to report despite correct wiring, tap the <strong>Contact support</strong> button below to request Hub replacement through Facilities/Hardware support.
         </div>
 
         <div class="page-nav">
@@ -460,7 +460,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If user mapping is verified correct in cloud database but kiosk refuses access, initiate manual sync or escalate to System Administrator.
+            <strong>Escalation Criteria:</strong> If user mapping is verified correct in the cloud database but the kiosk still refuses access, tap the <strong>Contact support</strong> button below to request a manual sync or System Administrator help.
         </div>
 
         <div class="page-nav">
@@ -502,7 +502,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If network settings match profile but connection fails, escalate to IT Network Team to check Wi-Fi Access Point / Ethernet port block.
+            <strong>Escalation Criteria:</strong> If network settings match the profile but the connection still fails, tap the <strong>Contact support</strong> button below and ask your IT Network Team to check the Wi-Fi Access Point / Ethernet port block.
         </div>
 
         <div class="page-nav">
@@ -543,13 +543,13 @@
             </li>
         </ul>
 
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If IP parameters match but connection fails, escalate to Smartalock Technical Support for Controller firmware verification.
-        </div>
-
         <div class="example-figure zoomable">
             <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
             <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If IP parameters match but the connection still fails, tap the <strong>Contact support</strong> button below so Smartalock Technical Support can verify the Controller firmware.
         </div>
 
         <div class="page-nav">
@@ -585,13 +585,13 @@
             </li>
         </ul>
 
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If reader exhibits no LED lights or response across multiple ports, escalate for Card Reader replacement.
-        </div>
-
         <div class="example-figure zoomable">
             <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
             <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If the reader shows no LED lights or response across multiple ports, tap the <strong>Contact support</strong> button below to request a Card Reader replacement.
         </div>
 
         <div class="page-nav">
@@ -628,7 +628,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If solenoid fails to actuate or mechanism is damaged, utilize manual key/override tool and dispatch hardware service technician.
+            <strong>Escalation Criteria:</strong> If the solenoid fails to actuate or the mechanism is damaged, use the manual key/override tool, then tap the <strong>Contact support</strong> button below to request a hardware service technician.
         </div>
 
         <div class="page-nav">
@@ -729,7 +729,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the appliance shows no power/link lights at all after a confirmed power cycle, or the site remains unreachable after the 15-minute startup window, escalate to network/IT support to check upstream internet service at the site.
+            <strong>Escalation Criteria:</strong> If the appliance shows no power/link lights at all after a confirmed power cycle, or the site remains unreachable after the 15-minute startup window, tap the <strong>Contact support</strong> button below and ask network/IT support to check the upstream internet service at the site.
         </div>
 
         <div class="page-nav">
@@ -769,6 +769,7 @@
 </main>
 
 <script src="wizard-data.js"></script>
+<script src="support-request.js"></script>
 <script>
     const PAGE_KEY = 'Locker';
 
@@ -985,6 +986,9 @@
     } else {
         goToStep('select');
     }
+
+    /* ---------- "Contact support" button (see support-request.js) ---------- */
+    if (window.SupportRequest) SupportRequest.init({ pageKey: PAGE_KEY, titles: STEP_TITLES });
 </script>
 
 </body>

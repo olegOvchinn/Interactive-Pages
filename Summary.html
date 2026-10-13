@@ -304,7 +304,30 @@
                 'handset-bootloader': 'Stuck on the Bootloader Screen',
                 'handset-x-screen': 'Stuck on an "X" Screen',
                 'motion-sensor': 'Motion Sensor Diagnostics',
-                'handset-diagnostics': 'Handset Diagnostics'
+                'handset-diagnostics': 'Handset Diagnostics',
+                'mobile-app': 'Mobile App Issues (sub-hub)',
+                'mobile-existing-user': 'Mobile App: Existing User',
+                'mobile-account-missing': 'Mobile App: User Account Does Not Exist',
+                'mobile-forgot-password': 'Mobile App: Forgot My Password',
+                'mobile-setup-code': 'Mobile App: Where to Find the Setup Code',
+                'mobile-not-loading': 'Mobile App: App Is Not Loading',
+                'mobile-white-screen': 'Mobile App: White Screen',
+                'mobile-cannot-tap-in': 'Mobile App: I Cannot Tap In, Check In or Confirm My Booking',
+                'mobile-booking-gone': 'Mobile App: My Booking Is Gone'
+            }
+        },
+        {
+            key: 'MobileApp', name: 'Mobile App (end-user page)', badge: 'badge-amber', badgeText: 'Floorsense',
+            issues: {
+                'mobile-app': 'Mobile App Issues (landing page)',
+                'mobile-existing-user': 'Existing User',
+                'mobile-account-missing': 'User Account Does Not Exist',
+                'mobile-forgot-password': 'Forgot My Password',
+                'mobile-setup-code': 'Where to Find the Setup Code',
+                'mobile-not-loading': 'App Is Not Loading',
+                'mobile-white-screen': 'White Screen',
+                'mobile-cannot-tap-in': 'I Cannot Tap In, Check In or Confirm My Booking',
+                'mobile-booking-gone': 'My Booking Is Gone'
             }
         },
         {
@@ -318,7 +341,7 @@
             }
         }
     ];
-    const PAGE_NAMES = { Locker: 'Locker (Smartalock)', Desk: 'Desk (Floorsense)', MeetingRoom: 'Meeting Room (Floorsense)', Hub: 'Troubleshooting Hub', Summary: 'Summary page' };
+    const PAGE_NAMES = { Locker: 'Locker (Smartalock)', Desk: 'Desk (Floorsense)', MeetingRoom: 'Meeting Room (Floorsense)', MobileApp: 'Mobile App (end users)', Hub: 'Troubleshooting Hub', Summary: 'Summary page' };
 
     function issueTitle(page, step) {
         const sys = SYSTEMS.find(function (s) { return s.key === page; });

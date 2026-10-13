@@ -334,7 +334,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the tablet remains blank after a confirmed power cycle and firm cable connections, escalate to Facilities/Hardware support for tablet replacement.
+            <strong>Escalation Criteria:</strong> If the tablet remains blank after a confirmed power cycle and firm cable connections, tap the <strong>Contact support</strong> button below to request a tablet replacement through Facilities/Hardware support.
         </div>
 
         <div class="page-nav">
@@ -380,7 +380,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If user mapping is verified correct in cloud database but kiosk refuses access, initiate manual sync or escalate to System Administrator.
+            <strong>Escalation Criteria:</strong> If user mapping is verified correct in the cloud database but the kiosk still refuses access, tap the <strong>Contact support</strong> button below to request a manual sync or System Administrator help.
         </div>
 
         <div class="page-nav">
@@ -426,7 +426,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If network settings match profile but connection fails, escalate to IT Network Team to check Wi-Fi Access Point / Ethernet port block.
+            <strong>Escalation Criteria:</strong> If network settings match the profile but the connection still fails, tap the <strong>Contact support</strong> button below and ask your IT Network Team to check the Wi-Fi Access Point / Ethernet port block.
         </div>
 
         <div class="page-nav">
@@ -471,13 +471,13 @@
             </li>
         </ul>
 
-        <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If IP parameters match but connection fails, escalate to Floorsense Technical Support for Controller firmware verification.
-        </div>
-
         <div class="example-figure zoomable">
             <img src="images/hub-wiring-diagram.png" alt="Hub and controller wiring diagram showing Ethernet, USB, DC power and PoE Injector connections between the Controller, First Hub and downstream hubs">
             <div class="caption">Reference wiring diagram for the Controller, First Hub and downstream hub daisy chain — useful when verifying cable types and connections above.</div>
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> If IP parameters match but the connection still fails, tap the <strong>Contact support</strong> button below so Floorsense Technical Support can verify the Controller firmware.
         </div>
 
         <div class="page-nav">
@@ -582,7 +582,7 @@
         </ul>
 
         <div class="callout callout-danger">
-            <strong>Escalation Criteria:</strong> If the appliance shows no power/link lights at all after a confirmed power cycle, or the site remains unreachable after the 15-minute startup window, escalate to network/IT support to check upstream internet service at the site.
+            <strong>Escalation Criteria:</strong> If the appliance shows no power/link lights at all after a confirmed power cycle, or the site remains unreachable after the 15-minute startup window, tap the <strong>Contact support</strong> button below and ask network/IT support to check the upstream internet service at the site.
         </div>
 
         <div class="page-nav">
@@ -622,6 +622,7 @@
 </main>
 
 <script src="wizard-data.js"></script>
+<script src="support-request.js"></script>
 <script>
     const PAGE_KEY = 'MeetingRoom';
 
@@ -829,6 +830,9 @@
     } else {
         goToStep('select');
     }
+
+    /* ---------- "Contact support" button (see support-request.js) ---------- */
+    if (window.SupportRequest) SupportRequest.init({ pageKey: PAGE_KEY, titles: STEP_TITLES });
 </script>
 
 </body>
