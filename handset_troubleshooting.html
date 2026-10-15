@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Floorsense Handset Troubleshooting</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* NOTE: this page deliberately does not define --ink / --line / --accent / --font-text, so the shared
+     "Contact support" dialog (support-request.js) keeps its own light styling on top of the dark scene. */
+  :root {
+    --bg: #04070d;
+    --bg2: #0a1220;
+    --glass: rgba(12, 21, 36, 0.94);
+    --glass-solid: #0d1727;
+    --edge: rgba(120, 220, 255, 0.24);
+    --edge-strong: rgba(120, 230, 255, 0.7);
+    --neon: #5ef2ff;
+    --neon-soft: rgba(94, 242, 255, 0.16);
+    --violet: #9b8cff;
+    --fg: #e8f1fb;
+    --fg-dim: #9db0c6;
+    --fg-faint: #6b7e95;
+    --warn: #ffc457;
+    --ok: #5dffa8;
+    --bad: #ff6b6b;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    --ease: cubic-bezier(.2, .8, .2, 1);
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font-family: var(--font);
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  body.mode-stack { overflow: hidden; height: 100vh; }
+  button { font-family: inherit; }
+  a { color: var(--neon); }
+
+  /* ---------- scene: glow + moving floor grid ---------- */
+  .scene { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+    background:
+      radial-gradient(1100px 520px at 50% -8%, rgba(60, 130, 255, 0.22), transparent 70%),
+      radial-gradient(700px 400px at 85% 90%, rgba(94, 242, 255, 0.10), transparent 70%),
+      radial-gradient(600px 380px at 8% 70%, rgba(155, 140, 255, 0.10), transparent 70%),
+      var(--bg); }
+  .floor {
+    position: absolute; left: -60%; right: -60%; bottom: -8%; height: 62vh;
+    transform: perspective(520px) rotateX(64deg); transform-origin: 50% 100%;
+    background:
+      linear-gradient(rgba(94, 242, 255, 0.20) 1px, transparent 1px) 0 0 / 64px 64px,
+      linear-gradient(90deg, rgba(94, 242, 255, 0.20) 1px, transparent 1px) 0 0 / 64px 64px;
+    -webkit-mask-image: linear-gradient(to top, #000 8%, transparent 78%);
+            mask-image: linear-gradient(to top, #000 8%, transparent 78%);
+    animation: floorMove 6s linear infinite;
+  }
+  @keyframes floorMove { to { background-position: 0 64px, 64px 0; } }
+  .scene::after { content: ""; position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.018) 0 1px, transparent 1px 3px); }
+
+  /* ---------- header ---------- */
+  .top { position: relative; z-index: 5; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 18px max(20px, env(safe-area-inset-right)) 0 max(20px, env(safe-area-inset-left)); max-width: 1240px; margin: 0 auto; }
+  .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .brand img { height: 20px; width: auto; filter: invert(1) brightness(1.15); display: block; }
+  .brand-tag { color: var(--fg-dim); font-weight: 500; font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    padding-left: 12px; border-left: 1px solid var(--edge); white-space: nowrap; }
+  .top-actions { display: flex; align-items: center; gap: 8px; }
+  .chip { border: 1px solid var(--edge); background: rgba(10, 18, 32, .6); color: var(--fg-dim); font-size: 12px; font-weight: 500;
+    padding: 7px 12px; border-radius: 999px; text-decoration: none; cursor: pointer; backdrop-filter: blur(8px);
+    transition: color .2s, border-color .2s, background .2s; white-space: nowrap; }
+  .chip:hover, .chip:focus-visible { color: var(--neon); border-color: var(--edge-strong); outline: none; }
+
+  /* ---------- stack view ---------- */
+  .hero { position: relative; z-index: 4; max-width: 1240px; margin: 0 auto; padding: 26px max(20px, env(safe-area-inset-left)) 0;
+    transition: opacity .45s var(--ease), transform .6s var(--ease); }
+  .hero h1 { margin: 0; font-weight: 200; font-size: clamp(34px, 5vw, 54px); letter-spacing: -.5px; line-height: 1.08; }
+  .hero h1 b { font-weight: 600; background: linear-gradient(90deg, var(--neon), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .hero p { margin: 10px 0 0; color: var(--fg-dim); font-size: 15px; line-height: 1.5; max-width: 560px; }
+
+  .stage { position: relative; z-index: 3; height: calc(100vh - 205px); min-height: 520px; perspective: 1300px; perspective-origin: 50% 18%;
+    touch-action: none; }
+  body.mode-detail #step-select { display: none; }
+  .stack {
+    --w: min(780px, 90vw); --h: min(400px, 46vh);
+    position: absolute; left: 50%; bottom: 74px; width: var(--w); height: var(--h); margin-left: calc(var(--w) / -2);
+    transform-style: preserve-3d; transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transition: transform .35s var(--ease);
+  }
+  .layer {
+    position: absolute; inset: 0; border-radius: 22px; transform-origin: 50% 100%;
+    background: var(--glass); border: 1px solid var(--edge); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255,255,255,.03) inset, 0 0 40px rgba(94,242,255,.06);
+    display: flex; flex-direction: column; overflow: hidden;
+    transition: transform .75s var(--ease), opacity .55s var(--ease), filter .55s var(--ease), border-color .3s, box-shadow .3s;
+    will-change: transform, opacity;
+  }
+  .layer.is-front { border-color: var(--edge-strong); box-shadow: 0 40px 100px rgba(0,0,0,.6), 0 0 0 1px rgba(94,242,255,.18) inset, 0 0 60px rgba(94,242,255,.22); }
+  .layer-hit { position: absolute; inset: 0; z-index: 1; background: none; border: 0; padding: 0; cursor: pointer; border-radius: inherit; }
+  .layer-hit:focus-visible { outline: 2px solid var(--neon); outline-offset: -3px; }
+  .layer-head { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 18px; flex: none; min-height: 56px; }
+  .layer-head .idx { font-size: 12px; font-weight: 600; color: var(--neon); letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+  .layer-head h3 { margin: 0; font-size: 17px; font-weight: 500; letter-spacing: -.01em; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tag { font-size: 10px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--neon); border: 1px solid var(--edge-strong); border-radius: 999px; padding: 3px 9px; background: var(--neon-soft); white-space: nowrap; }
+  .layer-media { flex: 1; min-height: 0; position: relative; margin: 0 14px; border-radius: 14px; overflow: hidden; background: #000; }
+  .layer-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .layer-media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, transparent 55%, rgba(4,7,13,.55)); }
+  .layer-foot { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 12px 18px 16px; flex: none; }
+  .layer-foot p { margin: 0; color: var(--fg-dim); font-size: 13.5px; line-height: 1.45; }
+  .layer-foot .dive { font-size: 12px; font-weight: 600; color: var(--neon); white-space: nowrap; opacity: 0; transform: translateX(-6px); transition: opacity .3s, transform .3s; }
+  .layer.is-front .dive { opacity: 1; transform: none; }
+  .send-back { position: absolute; z-index: 2; top: 10px; right: 12px; display: none; width: 34px; height: 34px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--edge); background: rgba(8, 14, 26, .75); color: var(--fg-dim); align-items: center; justify-content: center; }
+  .send-back svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .send-back:hover, .send-back:focus-visible { color: var(--neon); border-color: var(--edge-strong); outline: none; }
+  .layer.is-front .send-back { display: inline-flex; }
+  .layer.is-front .tag { margin-right: 40px; }
+
+  .hero-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; margin-top: 16px; }
+  .scan-cta { font: inherit; font-weight: 600; font-size: 14px; display: inline-flex; align-items: center; gap: 9px; cursor: pointer; padding: 11px 20px; border-radius: 999px;
+    color: #04121a; background: var(--neon); border: 1px solid var(--neon); box-shadow: 0 0 0 0 rgba(94,242,255,.5), 0 8px 28px rgba(94,242,255,.22); animation: scanpulse 2.8s ease-out infinite;
+    transition: transform .2s var(--ease), background .2s; }
+  .scan-cta:hover, .scan-cta:focus-visible { background: #8ff7ff; transform: translateY(-1px); outline: none; }
+  .scan-cta svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .hero-cta .or { font-size: 13px; color: var(--fg-faint); }
+  @keyframes scanpulse { 0% { box-shadow: 0 0 0 0 rgba(94,242,255,.5), 0 8px 28px rgba(94,242,255,.22); } 70%, 100% { box-shadow: 0 0 0 14px rgba(94,242,255,0), 0 8px 28px rgba(94,242,255,.22); } }
+  @media (prefers-reduced-motion: reduce) { .scan-cta { animation: none; } }
+  .rail { position: absolute; z-index: 6; right: max(14px, env(safe-area-inset-right)); top: 50%; transform: translateY(-46%); display: flex; flex-direction: column; gap: 4px; }
+  .rail button { position: relative; width: 28px; height: 22px; border: 0; background: none; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: flex-end; }
+  .rail button i { display: block; height: 2px; width: 12px; background: var(--fg-faint); border-radius: 2px; transition: width .3s var(--ease), background .3s, box-shadow .3s; }
+  .rail button:hover i, .rail button:focus-visible i { width: 22px; background: var(--fg-dim); }
+  .rail button.on i { width: 26px; background: var(--neon); box-shadow: 0 0 10px var(--neon); }
+  .rail button span { position: absolute; right: 36px; white-space: nowrap; font-size: 12px; color: var(--fg); background: rgba(8,14,26,.9); border: 1px solid var(--edge); padding: 4px 9px; border-radius: 8px; opacity: 0; pointer-events: none; transform: translateX(6px); transition: opacity .2s, transform .2s; }
+  .rail button:hover span, .rail button:focus-visible span { opacity: 1; transform: none; }
+  .rail button:focus-visible { outline: none; }
+
+  .hint { position: absolute; z-index: 6; left: 0; right: 0; bottom: 18px; text-align: center; font-size: 12px; color: var(--fg-faint); letter-spacing: .02em; pointer-events: none; }
+  .hint kbd { font: inherit; border: 1px solid var(--edge); border-radius: 5px; padding: 1px 6px; color: var(--fg-dim); background: rgba(8,14,26,.6); }
+  .live { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* dive transition: front layer flies at the camera, the rest fall away */
+  body.diving .hero { opacity: 0; transform: translateY(-14px); }
+  body.diving .rail, body.diving .hint { opacity: 0; transition: opacity .3s; }
+  body.diving .layer.is-front { transition: transform .7s var(--ease), opacity .5s .22s ease-in; box-shadow: 0 0 120px rgba(94,242,255,.55); }
+
+  /* boot-in of the stack after the intro */
+  .stack.pre .layer { opacity: 0 !important; transform: translate3d(0, -260px, -1900px) !important; transition: none !important; }
+
+  /* ---------- issue panels ---------- */
+  .wizard-step { display: none; }
+  .wizard-step.active { display: block; animation: panelIn .6s var(--ease) both; }
+  @keyframes panelIn { from { opacity: 0; transform: translateY(46px) scale(.965); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+  .panel-wrap { position: relative; z-index: 4; max-width: 980px; margin: 0 auto; padding: 22px max(16px, env(safe-area-inset-left)) 130px; }
+  .panel { background: var(--glass); border: 1px solid var(--edge); border-radius: 24px; padding: clamp(18px, 3.4vw, 34px);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: 0 40px 110px rgba(0,0,0,.55), 0 0 60px rgba(94,242,255,.08); }
+  .crumb-link { display: inline-flex; align-items: center; gap: 6px; color: var(--neon); text-decoration: none; font-weight: 600; font-size: 13px; margin-bottom: 14px; }
+  .crumb-link:hover { text-decoration: underline; }
+  .p-title { margin: 0 0 6px; font-weight: 200; font-size: clamp(28px, 4.4vw, 44px); letter-spacing: -.4px; line-height: 1.1; }
+  .p-sub { margin: 0 0 20px; color: var(--fg-dim); font-size: 15px; line-height: 1.55; max-width: 720px; }
+
+  /* clip: Stories-style looping demo */
+  .clip { position: relative; margin: 0 auto 22px; width: min(100%, calc(52vh * var(--arn, 1.778)), 780px); aspect-ratio: var(--arn, 1.778); border-radius: 18px; overflow: hidden; background: #000; border: 1px solid var(--edge); box-shadow: 0 0 0 1px rgba(94,242,255,.06), 0 24px 60px rgba(0,0,0,.5); user-select: none; }
+  .clip-media { position: absolute; inset: 0; overflow: hidden; background: #000; }
+  .clip-media img, .clip-media video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .spot { position: absolute; left: 50%; top: 50%; width: 0; height: 0; border: 2px solid var(--neon); border-radius: 12px; opacity: 0; pointer-events: none;
+    box-shadow: 0 0 0 200vmax rgba(2, 6, 12, .66), 0 0 26px rgba(94, 242, 255, .85), inset 0 0 18px rgba(94, 242, 255, .35);
+    transition: left .6s var(--ease), top .6s var(--ease), width .6s var(--ease), height .6s var(--ease), opacity .35s; }
+  .spot.on { opacity: 1; animation: spotPulse 1.4s ease-in-out infinite; }
+  @keyframes spotPulse { 50% { border-color: #b8fbff; } }
+  .sweep { position: absolute; inset: 0; pointer-events: none; opacity: 0; background: linear-gradient(180deg, transparent 0, rgba(94,242,255,.22) 50%, transparent 100%) 0 -100% / 100% 40% no-repeat; }
+  .sweep.on { opacity: 1; animation: sweepY 1.8s linear infinite; }
+  @keyframes sweepY { to { background-position: 0 220%; } }
+  .clip-bars { position: absolute; z-index: 3; left: 12px; right: 12px; top: 10px; display: flex; gap: 5px; }
+  .clip-bars i { flex: 1; height: 3px; border-radius: 3px; background: rgba(255,255,255,.28); overflow: hidden; position: relative; }
+  .clip-bars i::after { content: ""; position: absolute; inset: 0; transform: scaleX(0); transform-origin: 0 50%; background: #fff; }
+  .clip-bars i.done::after { transform: scaleX(1); }
+  .clip-bars i.cur::after { animation: barFill var(--beat, 2.4s) linear forwards; }
+  .clip.paused .clip-bars i.cur::after { animation-play-state: paused; }
+  @keyframes barFill { to { transform: scaleX(1); } }
+  .clip-cap { position: absolute; z-index: 3; left: 0; right: 0; bottom: 0; display: flex; align-items: center; gap: 12px; padding: 34px 18px 16px;
+    background: linear-gradient(0deg, rgba(2,6,12,.92), rgba(2,6,12,0)); }
+  .clip-cap .n { flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #04121a; background: var(--neon); box-shadow: 0 0 14px var(--neon); }
+  .clip-cap .t { font-size: clamp(15px, 2.2vw, 19px); font-weight: 600; letter-spacing: -.01em; text-shadow: 0 2px 12px rgba(0,0,0,.8); animation: capIn .45s var(--ease) both; }
+  @keyframes capIn { from { opacity: 0; transform: translateY(8px); } }
+  .clip-zone { position: absolute; z-index: 2; top: 0; bottom: 0; width: 38%; border: 0; background: none; cursor: pointer; padding: 0; }
+  .clip-zone.l { left: 0; } .clip-zone.r { right: 0; }
+  .clip-zone:focus-visible { outline: 2px solid var(--neon); outline-offset: -4px; }
+  .clip-ctl { position: absolute; z-index: 4; top: 20px; right: 12px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid rgba(255,255,255,.3); background: rgba(0,0,0,.45); color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+  .clip-ctl svg { width: 12px; height: 12px; fill: currentColor; }
+  .clip-ctl:hover, .clip-ctl:focus-visible { border-color: var(--neon); color: var(--neon); outline: none; }
+
+  /* content blocks */
+  .callout { border-radius: 14px; padding: 14px 18px; margin: 14px 0; font-size: 14px; line-height: 1.6; border: 1px solid; border-left-width: 3px; }
+  .callout strong { font-weight: 600; }
+  .callout-warning { background: rgba(255, 196, 87, .08); border-color: rgba(255, 196, 87, .3); color: #ffe2a8; box-shadow: -8px 0 30px -14px rgba(255,196,87,.5); }
+  .callout-success { background: rgba(93, 255, 168, .07); border-color: rgba(93, 255, 168, .3); color: #b9ffd9; box-shadow: -8px 0 30px -14px rgba(93,255,168,.5); }
+  .callout-danger { background: rgba(255, 107, 107, .08); border-color: rgba(255, 107, 107, .32); color: #ffc4c4; box-shadow: -8px 0 30px -14px rgba(255,107,107,.5); }
+  .subhead { margin: 26px 0 10px; font-size: 11px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--neon); }
+  .check-list { list-style: none; margin: 14px 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .check-item { position: relative; display: flex; align-items: flex-start; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px solid var(--edge); background: rgba(8, 16, 30, .55);
+    font-size: 14.5px; line-height: 1.55; transition: border-color .3s, background .3s, box-shadow .3s; }
+  .check-item input { appearance: none; -webkit-appearance: none; flex: none; width: 22px; height: 22px; margin: 1px 0 0; border-radius: 7px; border: 1.5px solid var(--fg-faint); background: transparent; cursor: pointer; display: grid; place-content: center; transition: all .25s var(--ease); }
+  .check-item input::after { content: ""; width: 10px; height: 6px; border-left: 2px solid #04121a; border-bottom: 2px solid #04121a; transform: rotate(-45deg) scale(0); margin-top: -2px; transition: transform .25s var(--ease); }
+  .check-item input:checked { background: var(--neon); border-color: var(--neon); box-shadow: 0 0 14px rgba(94,242,255,.7); }
+  .check-item input:checked::after { transform: rotate(-45deg) scale(1); }
+  .check-item input:focus-visible { outline: 2px solid var(--neon); outline-offset: 3px; }
+  .check-item label { flex: 1; cursor: pointer; color: var(--fg); }
+  .check-item label strong { color: #fff; font-weight: 600; }
+  .check-status { flex: none; align-self: center; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--neon); opacity: 0; transform: translateX(6px); transition: opacity .25s, transform .25s; }
+  .check-item.answered { border-color: rgba(94,242,255,.5); background: rgba(94,242,255,.07); box-shadow: 0 0 28px -10px rgba(94,242,255,.5); }
+  .check-item.answered .check-status { opacity: 1; transform: none; }
+  .step-list { margin: 12px 0; padding-left: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 8px; }
+  .step-list li { counter-increment: s; position: relative; padding: 12px 16px 12px 52px; border-radius: 14px; border: 1px solid var(--edge); background: rgba(8,16,30,.55); font-size: 14.5px; line-height: 1.55; }
+  .step-list li::before { content: counter(s); position: absolute; left: 14px; top: 11px; width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: var(--neon); border: 1px solid var(--edge-strong); background: var(--neon-soft); }
+  .example-figure { margin: 16px auto; width: min(100%, 560px); }
+  .example-figure img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1px solid var(--edge); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+  .example-figure .caption { margin-top: 8px; text-align: center; font-size: 12.5px; color: var(--fg-faint); }
+  .comment-box { margin-top: 26px; padding-top: 18px; border-top: 1px solid var(--edge); }
+  .comment-box-label { font-weight: 500; font-size: 13px; color: var(--fg-dim); margin-bottom: 8px; }
+  .comment-box-label span { color: var(--fg-faint); font-weight: 400; }
+  .comment-box-input { width: 100%; min-height: 76px; resize: vertical; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--edge); background: rgba(4, 9, 18, .7); color: var(--fg); font: 14px/1.5 var(--font); }
+  .comment-box-input::placeholder { color: var(--fg-faint); }
+  .comment-box-input:focus { outline: none; border-color: var(--edge-strong); box-shadow: 0 0 0 3px var(--neon-soft); }
+  .comment-box-status { min-height: 14px; margin-top: 5px; font-size: 11px; color: var(--ok); }
+
+  .layer-nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; }
+  .layer-nav button { flex: 1; max-width: 48%; display: flex; flex-direction: column; gap: 3px; padding: 12px 16px; border-radius: 14px; border: 1px solid var(--edge); background: rgba(8,16,30,.55); color: var(--fg); cursor: pointer; text-align: left; transition: border-color .25s, background .25s, transform .25s var(--ease); }
+  .layer-nav button.next { text-align: right; margin-left: auto; }
+  .layer-nav button small { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-faint); }
+  .layer-nav button span { font-size: 14px; font-weight: 500; }
+  .layer-nav button:hover, .layer-nav button:focus-visible { border-color: var(--edge-strong); background: var(--neon-soft); outline: none; transform: translateY(-2px); }
+
+  .done-ring { width: 120px; height: 120px; margin: 10px auto 18px; display: block; }
+  .done-ring circle { fill: none; stroke: var(--ok); stroke-width: 4; stroke-dasharray: 340; stroke-dashoffset: 340; filter: drop-shadow(0 0 8px rgba(93,255,168,.8)); }
+  .done-ring path { fill: none; stroke: var(--ok); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 80; stroke-dashoffset: 80; filter: drop-shadow(0 0 8px rgba(93,255,168,.8)); }
+  #step-resolved.active .done-ring circle { animation: draw .9s .1s ease forwards; }
+  #step-resolved.active .done-ring path { animation: draw .5s .8s ease forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+
+  /* action bar */
+  .action-bar { display: none; position: fixed; z-index: 20; left: 0; right: 0; bottom: 0; padding: 12px max(16px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    background: linear-gradient(0deg, rgba(4,7,13,.96), rgba(4,7,13,.8)); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-top: 1px solid var(--edge); }
+  .action-bar.show { display: block; }
+  .action-bar .in { max-width: 980px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .save-note { color: var(--fg-faint); font-size: 12.5px; }
+  .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+  .ghost, .primary { font-weight: 600; font-size: 13.5px; border-radius: 999px; cursor: pointer; padding: 10px 20px; border: 1px solid var(--edge-strong); background: rgba(8,16,30,.7); color: var(--neon); transition: all .25s var(--ease); }
+  .ghost:hover, .ghost:focus-visible { background: var(--neon-soft); box-shadow: 0 0 22px -4px rgba(94,242,255,.6); outline: none; }
+  .primary { background: linear-gradient(90deg, #2ad1ff, #5ef2ff); border-color: transparent; color: #03131a; box-shadow: 0 0 26px -6px rgba(94,242,255,.9); }
+  .primary:hover, .primary:focus-visible { transform: translateY(-1px); box-shadow: 0 0 34px -4px rgba(94,242,255,1); outline: none; }
+
+  /* ---------- intro (boot sequence) ---------- */
+  .intro { position: fixed; inset: 0; z-index: 1000; background: radial-gradient(900px 500px at 50% 45%, #0b1830, #02050a 70%); display: flex; align-items: center; justify-content: center; text-align: center; transition: opacity .7s var(--ease), transform .9s var(--ease), filter .9s var(--ease); }
+  .intro.out { opacity: 0; transform: scale(1.35); filter: blur(10px); pointer-events: none; }
+  .intro[hidden] { display: none; }
+  .intro::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(94,242,255,.05) 0 1px, transparent 1px 4px); animation: scan 1.4s linear infinite; }
+  @keyframes scan { to { background-position: 0 4px; } }
+  .intro-core { position: relative; width: min(420px, 82vw); }
+  .intro-hs { width: 100%; height: auto; overflow: visible; filter: drop-shadow(0 0 18px rgba(94,242,255,.55)); }
+  .hs-line { fill: none; stroke: var(--neon); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 700; stroke-dashoffset: 700; animation: hsDraw 1.3s .15s ease forwards; }
+  .hs-screen { fill: rgba(94,242,255,.0); animation: hsOn .5s 1.2s ease forwards; }
+  @keyframes hsDraw { to { stroke-dashoffset: 0; } }
+  @keyframes hsOn { to { fill: rgba(94,242,255,.16); } }
+  .hs-text { font: 600 15px var(--font); fill: var(--neon); opacity: 0; animation: hsTxt .4s 1.45s ease forwards; text-anchor: middle; }
+  .hs-spin { fill: none; stroke: var(--neon); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 20 60; transform-origin: 94px 82px; opacity: 0; animation: hsTxt .3s 1.55s forwards, spin .9s 1.55s linear infinite; }
+  @keyframes hsTxt { to { opacity: 1; } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .intro-title { margin: 26px 0 6px; font-weight: 200; font-size: clamp(30px, 6vw, 46px); letter-spacing: -.5px; opacity: 0; animation: introUp .7s 2.05s var(--ease) forwards; }
+  .intro-title b { font-weight: 600; background: linear-gradient(90deg, var(--neon), var(--violet)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .intro-sub { margin: 0; color: var(--fg-dim); font-size: 14px; letter-spacing: .04em; opacity: 0; animation: introUp .7s 2.35s var(--ease) forwards; }
+  @keyframes introUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+  .intro-skip { position: absolute; right: 22px; bottom: 22px; }
+
+  @media (max-width: 680px) {
+    .brand-tag { display: none; }
+    .stage { height: calc(100vh - 215px); }
+    .rail { right: 6px; }
+    .rail button span { display: none; }
+    .layer-head h3 { font-size: 15px; }
+    .layer-foot p { font-size: 12.5px; }
+    .layer-foot .dive { display: none; }
+    .hint .desk { display: none; }
+    .save-note { display: none; }
+    .action-bar .in { gap: 0; }
+    .btns { width: 100%; flex-wrap: nowrap; gap: 8px; }
+    .ghost, .primary { flex: 1 1 0; padding: 11px 6px; font-size: 12.5px; white-space: nowrap; display: inline-flex; align-items: center; justify-content: center; }
+    #supportBtn { gap: 5px; }
+    .panel-wrap { padding-bottom: 110px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .floor, .intro::before, .spot.on, .sweep.on { animation: none; }
+    .layer { transition: opacity .2s, filter .2s; }
+    .stack { transition: none; }
+    .wizard-step.active { animation: none; }
+    .intro { display: none; }
+  }
+</style>
+</head>
+<body class="mode-stack">
+
+<div class="scene" aria-hidden="true"><div class="floor"></div></div>
+
+<!-- boot sequence (plays once per visit; skippable) -->
+<div class="intro" id="intro" role="presentation">
+  <div class="intro-core">
+    <svg class="intro-hs" viewBox="0 0 240 150" aria-hidden="true">
+      <rect class="hs-line" x="4" y="4" width="232" height="142" rx="26"/>
+      <rect class="hs-line hs-screen" x="20" y="20" width="148" height="110" rx="8"/>
+      <path class="hs-line" d="M190 40l12-10 12 10M190 110l12 10 12-10"/>
+      <rect class="hs-line" x="188" y="62" width="28" height="26" rx="6"/>
+      <text class="hs-text" x="94" y="112">Power On</text>
+      <circle class="hs-spin" cx="94" cy="82" r="14"/>
+    </svg>
+    <h2 class="intro-title">Handset <b>Troubleshooting</b></h2>
+    <p class="intro-sub">Six states. One stack. Dive in.</p>
+  </div>
+  <button type="button" class="chip intro-skip" id="introSkip">Skip &rsaquo;</button>
+</div>
+
+<header class="top">
+  <div class="brand">
+    <img src="images/floorsense-logo.png" alt="Floorsense">
+    <span class="brand-tag">Handset Troubleshooting</span>
+  </div>
+  <div class="top-actions">
+    <button type="button" class="chip" id="replayIntro" title="Replay the intro">&#9654; Intro</button>
+    <a class="chip" href="Floorsense_Desk_Troubleshooting_Wizard.html">&larr; Main wizard</a>
+  </div>
+</header>
+
+<!-- STACK VIEW -->
+<div id="step-select" class="wizard-step-stack">
+  <div class="hero" id="hero">
+    <h1>Handset <b>issues</b></h1>
+    <p>Flip through the layers to find what the handset is showing. Click the front layer to dive in.</p>
+    <div class="hero-cta">
+      <button type="button" class="scan-cta" id="scanBtn" data-photo-triage>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Scan a photo
+      </button>
+      <span class="or">Not sure which one it is? Photograph the handset or screenshot the error.</span>
+    </div>
+  </div>
+  <div class="stage" id="stage">
+    <div class="stack pre" id="stack" role="list" aria-label="Handset issue layers"></div>
+    <div class="rail" id="rail" aria-label="Layer timeline"></div>
+    <div class="hint" id="hint"><span class="desk"><kbd>&uarr;</kbd> <kbd>&darr;</kbd> or scroll to flip &nbsp;&middot;&nbsp; <kbd>Enter</kbd> to dive &nbsp;&middot;&nbsp; <kbd>B</kbd> send to back</span><span class="touch" style="display:none">Swipe to flip &middot; tap the front layer to dive in</span></div>
+    <div class="live" id="live" aria-live="polite"></div>
+  </div>
+</div>
+
+<main class="panel-wrap" id="panelWrap" hidden>
+
+  <!-- 1: SCREEN SAVER -->
+  <div id="step-handset-screensaver" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Screen Saver / Inactive Display</h2>
+    <p class="p-sub">The handset&rsquo;s screen looks blank or asleep. Wake it to return to the home screen.</p>
+    <div class="clip-slot" data-clip="handset-screensaver"></div>
+    <ul class="check-list">
+      <li class="check-item">
+        <input type="checkbox" id="hs-1">
+        <label for="hs-1"><strong>Resolution:</strong> Tap the screen to activate it and return to the home screen.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+    </ul>
+    <div class="callout callout-success"><strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> If the handset still won&rsquo;t wake after tapping the screen, tap the <strong>Contact support</strong> button below and include the site name and desk number.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- 2: BLUE INFO -->
+  <div id="step-handset-blue-info" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Stuck on the Blue Info Screen</h2>
+    <p class="p-sub">The handset shows its hardware, boot and build version instead of the home screen.</p>
+    <div class="clip-slot" data-clip="handset-blue-info"></div>
+    <div class="callout callout-warning"><strong>Symptom:</strong> The handset is showing the blue &ldquo;Floorsight Handset&rdquo; info screen (hardware, boot and build version, serial number, radio version) instead of its normal home screen.</div>
+    <ul class="check-list">
+      <li class="check-item">
+        <input type="checkbox" id="hs-2">
+        <label for="hs-2"><strong>Resolution:</strong> Tap the X icon in the top-left corner to close the info screen and return to the home screen.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+    </ul>
+    <div class="callout callout-success"><strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> If the info screen stays after tapping the X, tap the <strong>Contact support</strong> button below and include the site name, the desk number and the serial number shown on the screen.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- 3: BOOTLOADER -->
+  <div id="step-handset-bootloader" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Stuck on the Bootloader Screen</h2>
+    <p class="p-sub">The handset shows hardware, application and radio details instead of starting up.</p>
+    <div class="clip-slot" data-clip="handset-bootloader"></div>
+    <div class="callout callout-warning"><strong>Symptom:</strong> The handset is showing the bootloader screen (hardware, application and radio details) instead of starting up normally.</div>
+    <ul class="check-list">
+      <li class="check-item">
+        <input type="checkbox" id="hs-3">
+        <label for="hs-3"><strong>Resolution:</strong> Tap the &ldquo;Reboot&rdquo; option on the bootloader screen.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+    </ul>
+    <div class="callout callout-success"><strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> If the handset returns to the bootloader screen after rebooting, tap the <strong>Contact support</strong> button below and include the site name and desk number.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- 4: X SCREEN -->
+  <div id="step-handset-x-screen" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Stuck on an &ldquo;X&rdquo; Screen</h2>
+    <p class="p-sub">A large white X means the handset is disconnected or not configured.</p>
+    <div class="clip-slot" data-clip="handset-x-screen"></div>
+    <div class="callout callout-warning"><strong>Symptom:</strong> The handset shows a large &ldquo;X&rdquo; and won&rsquo;t respond &mdash; this means it&rsquo;s disconnected or not configured.</div>
+    <ul class="check-list">
+      <li class="check-item">
+        <input type="checkbox" id="hs-4">
+        <label for="hs-4"><strong>Resolution &mdash; Power Cycle:</strong> Disconnect the power jack from the back of the handset, wait a few seconds, then plug it back in and wait for it to restart.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+    </ul>
+    <div class="example-figure">
+      <img src="images/handset-power-jack.png" alt="Close-up of the round power jack and cable that plugs into the back of the handset">
+      <div class="caption">The power jack connects to the back of the handset.</div>
+    </div>
+    <div class="callout callout-success"><strong>Expected Result:</strong> The handset returns to its normal home screen, showing the desk number.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> If the handset still shows an &ldquo;X&rdquo; screen after power cycling, tap the <strong>Contact support</strong> button below and include the site name and desk number.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- 5: POWER ON -->
+  <div id="step-handset-power-on" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Stuck on the &ldquo;Power On&rdquo; Screen</h2>
+    <p class="p-sub">The handset stays on &ldquo;Power On&rdquo; and its controls don&rsquo;t respond, even after reconnecting the power.</p>
+    <div class="clip-slot" data-clip="handset-power-on"></div>
+    <div class="callout callout-warning"><strong>Symptom:</strong> The handset is stuck on the &ldquo;Power On&rdquo; screen and its controls (up and down arrows and the card button) are unresponsive, even though the cables under the desk look connected and the power cable has been disconnected and reconnected.</div>
+    <ul class="check-list">
+      <li class="check-item">
+        <input type="checkbox" id="hs-5">
+        <label for="hs-5"><strong>Check the cables:</strong> Make sure all the cables under the desk are firmly connected to the handset.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+      <li class="check-item">
+        <input type="checkbox" id="hs-6">
+        <label for="hs-6"><strong>Power cycle:</strong> Disconnect the power jack from the back of the handset, wait a few seconds, then plug it back in and wait for it to restart.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+      <li class="check-item">
+        <input type="checkbox" id="hs-7">
+        <label for="hs-7"><strong>Resolution &mdash; Replacement required:</strong> If the handset is still stuck on the &ldquo;Power On&rdquo; screen and the controls still don&rsquo;t respond, the handset is faulty and needs to be replaced.</label>
+        <span class="check-status">&check; Checked</span>
+      </li>
+    </ul>
+    <div class="example-figure">
+      <img src="images/handset-power-jack.png" alt="Close-up of the round power jack and cable that plugs into the back of the handset">
+      <div class="caption">The power jack connects to the back of the handset.</div>
+    </div>
+    <div class="callout callout-success"><strong>Expected Result:</strong> A replacement handset powers on and shows its normal home screen with the desk number.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> To arrange a replacement, tap the <strong>Contact support</strong> button below and include the site name, the desk number, and a photo of the handset screen.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- 6: HANDSET DIAGNOSTICS -->
+  <div id="step-handset-diagnostics" class="wizard-step">
+   <div class="panel">
+    <a href="#" class="crumb-link" onclick="surface();return false;">&lsaquo; Back to layers</a>
+    <h2 class="p-title">Handset Diagnostics</h2>
+    <p class="p-sub">The admin portal also provides reports for identifying and diagnosing offline or malfunctioning pucks, with detailed status, performance and historical data.</p>
+    <div class="clip-slot" data-clip="handset-diagnostics"></div>
+    <div class="callout callout-warning"><strong>Symptom:</strong> Offline pucks/handsets are visually represented on the floor plan as pale/transparent icons, making them easy to identify at a glance.</div>
+    <div class="example-figure">
+      <img src="images/offline-puck-floorplan.png" alt="Floor plan diagram with desk icons. Most desks show a solid green or orange dot, but one desk in the top-left is circled in red and shown as a pale, washed-out green dot to indicate it is offline">
+      <div class="caption">An offline puck/handset shows as a pale, washed-out icon on the floor plan (circled above) instead of the normal solid colour.</div>
+    </div>
+    <div class="subhead">Offline Desks Report</div>
+    <div class="example-figure">
+      <img src="images/floorsense-stats-reports-nav.png" alt="Floorsense Stats &amp; Reports menu open in the admin portal, listing report categories including 'Floorsense - Per User / Per Desk Spreadsheet Reports', highlighted, with the Reports landing page visible behind it">
+      <div class="caption">Floorsense Stats &amp; Reports &rarr; Floorsense - Per User / Per Desk Spreadsheet Reports.</div>
+    </div>
+    <ol class="step-list" data-sr-group="Offline Desks report">
+      <li>As an administrator, log into the admin portal and go to Settings, then System Configuration.</li>
+      <li>On the page that opens, select Stats &amp; Reports, then Floorsense - Per User / Per Desk Spreadsheet Reports.</li>
+      <li>Look for the &ldquo;Offline Desks&rdquo; report &mdash; it returns a table of all desks and their current status (online / offline).</li>
+    </ol>
+    <div class="example-figure">
+      <img src="images/offline-desks-report.png" alt="Offline Desks - all locations (current status) report entry in the admin portal, described as returning a table with all desks and their status, online or offline, with a Download button">
+      <div class="caption">The Offline Desks report &mdash; download it to see the current online/offline status of every desk.</div>
+    </div>
+    <ol class="step-list" data-sr-group="Fix">
+      <li><strong>Resolution &mdash; Reconnect Cables:</strong> Reconnect all cables connected to the puck/handset. Unplug each cable, then plug it back in firmly, checking for any loose connections or visible damage to the cables or connectors.</li>
+    </ol>
+    <div class="callout callout-success"><strong>Expected Result:</strong> The puck/handset reconnects and its icon on the floor plan returns to its normal solid colour, and the Offline Desks report shows it as online.</div>
+    <div class="callout callout-danger"><strong>Escalation Criteria:</strong> If the puck/handset still shows offline after reconnecting all cables and checking for damage, tap the <strong>Contact support</strong> button below and include the site name, desk number, and the Offline Desks report showing the affected desk.</div>
+    <div class="layer-nav-slot"></div>
+   </div>
+  </div>
+
+  <!-- RESOLVED -->
+  <div id="step-resolved" class="wizard-step">
+   <div class="panel" style="text-align:center">
+    <svg class="done-ring" viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="54"/><path d="M36 62l16 16 32-34"/></svg>
+    <h2 class="p-title">Resolved</h2>
+    <p class="p-sub" style="margin-inline:auto">The issue has been addressed or the diagnostic steps are complete.</p>
+    <p style="margin:22px 0 0"><button type="button" class="primary" onclick="surface()">Back to the layers</button></p>
+   </div>
+  </div>
+
+</main>
+
+<div class="action-bar" id="actionBar">
+  <div class="in">
+    <div class="save-note" id="saveNote"></div>
+    <div class="btns">
+      <button class="ghost" id="ghostBtn" type="button" onclick="surface()">Back to layers</button>
+      <button class="primary" id="primaryBtn" type="button">Issue Resolved</button>
+    </div>
+  </div>
+</div>
+
+<script src="wizard-data.js"></script>
+<script src="support-request.js"></script>
+<script src="photo-triage.js"></script>
+<script>
+(function () {
+  'use strict';
+  var PAGE_KEY = 'Handset';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var coarse = window.matchMedia && matchMedia('(pointer: coarse)').matches;
+
+  /* ---------- issue data (layers + demo clips) ----------
+     Clips are "Stories"-style loops: a photo (or the real demo video) with a spotlight that moves between
+     beats. box = [left, top, width, height] in % of the picture. Swap in a real video by adding `video`. */
+  var ISSUES = [
+    { id: 'handset-screensaver', title: 'Screen Saver / Inactive Display', tag: 'Peripheral', desc: 'The handset’s screen looks blank or asleep.',
+      img: 'images/handset-reboot-demo-poster.png', ar: 900 / 506, video: 'images/handset-reboot-demo.mp4',
+      beats: [ { t: 'The screen looks blank or asleep' }, { t: 'Tap the screen to wake it' }, { t: 'The home screen returns, showing the desk number' } ] },
+    { id: 'handset-blue-info', title: 'Stuck on the Blue Info Screen', tag: 'Peripheral', desc: 'Shows hardware, boot and build version instead of the home screen.',
+      img: 'images/handset-blue-info-screen.png', ar: 900 / 506,
+      beats: [ { box: [30.2, 45.4, 35.6, 35], t: 'The blue “Floorsight Handset” info screen' }, { box: [30.2, 45.4, 6.4, 10.6], t: 'Tap the X in the top-left corner' }, { t: 'Back to the normal home screen' } ] },
+    { id: 'handset-bootloader', title: 'Stuck on the Bootloader Screen', tag: 'Peripheral', desc: 'Shows hardware, application and radio details instead of starting up.',
+      img: 'images/handset-bootloader-reboot.png', ar: 900 / 538,
+      beats: [ { box: [14.5, 21.5, 54.5, 51.5], t: 'The bootloader screen' }, { box: [53.6, 54.2, 16.2, 18.2], t: 'Tap “Reboot”' }, { t: 'The handset restarts normally' } ] },
+    { id: 'handset-x-screen', title: 'Stuck on an “X” Screen', tag: 'Peripheral', desc: 'Large white X — the handset is disconnected or not configured.',
+      img: 'images/handset-x-screen.png', ar: 900 / 592,
+      beats: [ { box: [37.8, 47, 13.4, 16], t: 'A large white X' }, { t: 'Unplug the power jack and wait a few seconds' }, { t: 'Plug it back in and wait for the restart' } ] },
+    { id: 'handset-power-on', title: 'Stuck on the “Power On” Screen', tag: 'Peripheral', desc: 'Stays on “Power On” and the controls don’t respond, even after reconnecting the power.',
+      img: 'images/handset-power-on-screen.png', ar: 900 / 530, zoom: 1.1, pos: '50% 40%',
+      beats: [ { box: [14, 18.4, 60.4, 62.4], t: 'Stuck on “Power On”' }, { box: [76.6, 21, 13.6, 58.6], t: 'The controls don’t respond' }, { t: 'Still stuck after a power cycle? Replace the handset' } ] },
+    { id: 'handset-diagnostics', title: 'Handset Diagnostics', tag: 'Admin portal', desc: 'Find and fix an offline puck or handset.',
+      img: 'images/offline-puck-floorplan.png', ar: 514 / 337,
+      beats: [ { box: [1, 0.5, 21, 28], t: 'A pale icon on the floor plan = offline puck' }, { t: 'Run the Offline Desks report in the admin portal' }, { t: 'Reconnect every cable on that handset' } ] }
+  ];
+  var BY_ID = {}; ISSUES.forEach(function (i) { BY_ID[i.id] = i; });
+  var STEP_TITLES = {}; ISSUES.forEach(function (i) { STEP_TITLES[i.id] = { title: i.title }; });
+  STEP_TITLES.resolved = { title: 'Resolved' };
+
+  var ORDER_KEY = 'hs_layer_order_v1';
+  function loadOrder() {
+    var base = ISSUES.map(function (i) { return i.id; });
+    try {
+      var saved = JSON.parse(localStorage.getItem(ORDER_KEY) || 'null');
+      if (Array.isArray(saved) && saved.length === base.length && base.every(function (id) { return saved.indexOf(id) > -1; })) return saved;
+    } catch (e) { /* storage unavailable */ }
+    return base;
+  }
+  function saveOrder() { try { localStorage.setItem(ORDER_KEY, JSON.stringify(order)); } catch (e) { /* ignore */ } }
+
+  var order = loadOrder();
+  var front = 0;
+  var diving = false;
+  var current = null;      /* id of the open issue panel (or 'resolved') */
+
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var stack = $('#stack'), rail = $('#rail'), live = $('#live');
+
+  /* ---------- build the layers ---------- */
+  var layerEls = {};
+  ISSUES.forEach(function (it) {
+    var el = document.createElement('div');
+    el.className = 'layer'; el.setAttribute('role', 'listitem'); el.dataset.id = it.id;
+    el.innerHTML =
+      '<div class="layer-head"><span class="idx"></span><h3></h3><span class="tag"></span></div>' +
+      '<div class="layer-media"><img alt="" draggable="false"></div>' +
+      '<div class="layer-foot"><p></p><span class="dive">Dive in &rarr;</span></div>' +
+      '<button type="button" class="layer-hit"></button>' +
+      '<button type="button" class="send-back" title="Send to back (B)" aria-label="Send this layer to the back"><svg viewBox="0 0 24 24"><path d="M4 8h12a4 4 0 0 1 0 8H8"/><path d="M8 4L4 8l4 4"/></svg></button>';
+    $('h3', el).textContent = it.title;
+    $('.tag', el).textContent = it.tag;
+    $('p', el).textContent = it.desc;
+    $('img', el).src = it.img;
+    if (it.zoom) { $('img', el).style.transform = 'scale(' + it.zoom + ')'; }
+    if (it.pos) { $('img', el).style.objectPosition = it.pos; }
+    $('.layer-hit', el).setAttribute('aria-label', it.title);
+    $('.layer-hit', el).addEventListener('click', function () { onLayerClick(it.id); });
+    $('.send-back', el).addEventListener('click', function (e) { e.stopPropagation(); sendToBack(); });
+    stack.appendChild(el); layerEls[it.id] = el;
+  });
+
+  /* ---------- rail (timeline) ---------- */
+  function buildRail() {
+    rail.innerHTML = '';
+    order.forEach(function (id, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.setAttribute('aria-label', BY_ID[id].title);
+      b.innerHTML = '<i></i><span></span>'; $('span', b).textContent = BY_ID[id].title;
+      b.addEventListener('click', function () { setFront(i); });
+      rail.appendChild(b);
+    });
+  }
+
+  /* ---------- layout: the Time-Machine stack ---------- */
+  function layout() {
+    order.forEach(function (id, i) {
+      var el = layerEls[id], o = i - front, idx = String(i + 1).padStart(2, '0');
+      $('.idx', el).textContent = idx;
+      var t, op, br = 1, z = 100 - Math.abs(o);
+      if (diving && o === 0) { t = 'translate3d(0,-10px,520px) scale(1.08)'; op = 0; }
+      else if (diving) { t = 'translate3d(0,' + (-o * 54 - 40) + 'px,' + (-o * 170 - 500) + 'px)'; op = 0; }
+      else if (o < 0) { t = 'translate3d(0,150px,420px) scale(1.06)'; op = 0; }
+      else { t = 'translate3d(0,' + (-o * 50) + 'px,' + (-o * 175) + 'px)'; op = o > 4 ? 0 : 1 - o * 0.17; br = 1 - o * 0.11; }
+      el.style.transform = t; el.style.opacity = op; el.style.zIndex = z;
+      el.style.filter = br < 1 ? 'brightness(' + br.toFixed(2) + ')' : 'none';
+      el.style.pointerEvents = (o < 0 || diving) ? 'none' : 'auto';
+      el.classList.toggle('is-front', o === 0);
+      var hit = $('.layer-hit', el);
+      hit.tabIndex = o === 0 ? 0 : -1;
+      el.style.transitionDelay = '0ms';
+    });
+    $$('button', rail).forEach(function (b, i) { b.classList.toggle('on', i === front); });
+    live.textContent = (front + 1) + ' of ' + order.length + ': ' + BY_ID[order[front]].title;
+  }
+  function setFront(i) {
+    var n = Math.max(0, Math.min(order.length - 1, i));
+    if (n === front) return;
+    front = n; layout();
+  }
+  function onLayerClick(id) {
+    var i = order.indexOf(id);
+    if (i === front) navigate(id); else setFront(i);
+  }
+  function sendToBack() {
+    if (diving) return;
+    var id = order.splice(front, 1)[0];
+    order.push(id); saveOrder(); buildRail();
+    /* the layer that was behind it now sits at the same index, i.e. comes to the front */
+    if (front > order.length - 1) front = order.length - 1;
+    layout();
+    var el = layerEls[id]; el.style.transitionDelay = '0ms';
+  }
+
+  /* ---------- navigation: wheel / keys / swipe ---------- */
+  var wheelAcc = 0, wheelLock = 0;
+  var stage = $('#stage');
+  document.addEventListener('wheel', function (e) {
+    if (diving || current) return;
+    var ov = document.getElementById('srOverlay'); if (ov && !ov.hidden) return;
+    if (!document.getElementById('intro').hidden) return;
+    e.preventDefault();
+    var now = Date.now(); if (now < wheelLock) return;
+    wheelAcc += e.deltaY + e.deltaX;
+    if (Math.abs(wheelAcc) > 36) { setFront(front + (wheelAcc > 0 ? 1 : -1)); wheelAcc = 0; wheelLock = now + 380; }
+  }, { passive: false });
+  var ty = null;
+  stage.addEventListener('touchstart', function (e) { ty = e.touches[0].clientY; document.body.classList.add('touching'); }, { passive: true });
+  stage.addEventListener('touchmove', function (e) {
+    if (ty == null) return;
+    var d = e.touches[0].clientY - ty;
+    if (Math.abs(d) > 46) { setFront(front + (d < 0 ? 1 : -1)); ty = e.touches[0].clientY; }
+  }, { passive: true });
+  stage.addEventListener('touchend', function () { ty = null; }, { passive: true });
+  if (coarse) { $('#hint .desk').style.display = 'none'; $('#hint .touch').style.display = ''; }
+
+  document.addEventListener('keydown', function (e) {
+    if (document.getElementById('srOverlay') && !document.getElementById('srOverlay').hidden) return;
+    var tag = (e.target && e.target.tagName) || '';
+    if (/INPUT|TEXTAREA|SELECT/.test(tag)) return;
+    if (current) { if (e.key === 'Escape') { e.preventDefault(); surface(); } return; }
+    if (diving) return;
+    var k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); setFront(front + 1); }
+    else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); setFront(front - 1); }
+    else if (k === 'Home') { e.preventDefault(); setFront(0); }
+    else if (k === 'End') { e.preventDefault(); setFront(order.length - 1); }
+    else if (k === 'b' || k === 'B') { e.preventDefault(); sendToBack(); }
+    else if ((k === 'Enter' || k === ' ') && document.activeElement && document.activeElement.classList.contains('layer-hit')) { /* native click handles it */ }
+    else if (k === 'Enter') { e.preventDefault(); navigate(order[front]); }
+  });
+
+  /* gentle parallax on the stack */
+  if (!reduce && !coarse) {
+    stage.addEventListener('pointermove', function (e) {
+      var r = stage.getBoundingClientRect();
+      var x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5;
+      stack.style.setProperty('--ry', (x * 7).toFixed(2) + 'deg');
+      stack.style.setProperty('--rx', (-y * 4).toFixed(2) + 'deg');
+    });
+    stage.addEventListener('pointerleave', function () { stack.style.setProperty('--ry', '0deg'); stack.style.setProperty('--rx', '0deg'); });
+  }
+
+  /* ---------- routing: #issue-id opens a panel (shareable, back button works) ---------- */
+  function navigate(id) {
+    var url = location.pathname + location.search + (id ? '#' + id : '');
+    if (id) { history.pushState(null, '', url); } else if (location.hash) { history.pushState(null, '', location.pathname + location.search); }
+    route(true);
+  }
+  function surface() { navigate(null); }
+  window.surface = surface;
+  window.addEventListener('popstate', function () { route(true); });
+  window.addEventListener('hashchange', function () { route(true); });
+
+  var diveTimer = null;
+  function route(animate) {
+    var id = (location.hash || '').replace('#', '');
+    if (id && BY_ID[id]) {
+      var i = order.indexOf(id); if (i > -1) front = i;
+      if (current === id) return;
+      if (animate && !reduce && !current && stage.offsetParent !== null) {
+        diving = true; document.body.classList.add('diving'); layout();
+        clearTimeout(diveTimer);
+        diveTimer = setTimeout(function () { openPanel(id); }, 520);
+      } else { openPanel(id); }
+    } else {
+      closePanel();
+    }
+  }
+
+  function openPanel(id) {
+    clearTimeout(diveTimer);
+    stopClips();
+    current = id;
+    document.body.classList.remove('mode-stack'); document.body.classList.add('mode-detail');
+    $('#panelWrap').hidden = false;
+    $$('.wizard-step').forEach(function (s) { s.classList.remove('active'); });
+    var step = document.getElementById('step-' + id);
+    step.classList.add('active');
+    window.scrollTo(0, 0);
+    document.title = (BY_ID[id] ? BY_ID[id].title + ' — ' : '') + 'Floorsense Handset Troubleshooting';
+    if (window.STW) STW.logEvent({ type: 'visit', page: PAGE_KEY, step: id });
+    var bar = $('#actionBar'), ghost = $('#ghostBtn'), prim = $('#primaryBtn');
+    bar.classList.add('show');
+    ghost.hidden = false; ghost.textContent = 'Back to layers'; ghost.onclick = surface;
+    prim.textContent = 'Issue Resolved';
+    prim.onclick = function () {
+      if (window.STW) STW.logEvent({ type: 'resolved', page: PAGE_KEY, step: id });
+      current = 'resolved'; openResolved();
+    };
+    updateNote(id);
+    startClip(id);
+  }
+  function openResolved() {
+    stopClips();
+    $$('.wizard-step').forEach(function (s) { s.classList.remove('active'); });
+    $('#step-resolved').classList.add('active');
+    window.scrollTo(0, 0);
+    $('#actionBar').classList.add('show');
+    $('#ghostBtn').hidden = true;
+    var prim = $('#primaryBtn'); prim.textContent = 'Back to layers'; prim.onclick = surface;
+    $('#saveNote').textContent = '';
+  }
+  function closePanel() {
+    clearTimeout(diveTimer);
+    stopClips();
+    var wasOpen = !!current;
+    current = null;
+    $$('.wizard-step').forEach(function (s) { s.classList.remove('active'); });
+    $('#panelWrap').hidden = true;
+    $('#actionBar').classList.remove('show');
+    document.body.classList.remove('mode-detail'); document.body.classList.add('mode-stack');
+    document.title = 'Floorsense Handset Troubleshooting';
+    window.scrollTo(0, 0);
+    diving = false; document.body.classList.remove('diving');
+    if (wasOpen && !reduce) {
+      /* come back out: the stack rises from behind the camera */
+      stack.classList.add('pre'); layout();
+      requestAnimationFrame(function () { requestAnimationFrame(function () { stack.classList.remove('pre'); layout(); }); });
+    } else { layout(); }
+  }
+
+  /* ---------- checklist behaviour ---------- */
+  function updateNote(id) {
+    var panel = document.getElementById('step-' + id);
+    var boxes = panel ? $$('.check-item input[type="checkbox"]', panel) : [];
+    $('#saveNote').textContent = boxes.length ? boxes.filter(function (b) { return b.checked; }).length + ' of ' + boxes.length + ' steps checked' : '';
+  }
+  $$('.check-item input[type="checkbox"]').forEach(function (cb) {
+    cb.addEventListener('change', function () {
+      cb.closest('.check-item').classList.toggle('answered', cb.checked);
+      if (current) updateNote(current);
+    });
+  });
+
+  /* ---------- previous / next layer buttons + notes box inside every panel ---------- */
+  ISSUES.forEach(function (it) {
+    var step = document.getElementById('step-' + it.id), slot = $('.layer-nav-slot', step);
+    var nav = document.createElement('div'); nav.className = 'layer-nav';
+    nav.innerHTML = '<button type="button" class="prev"><small>&lsaquo; Previous layer</small><span></span></button><button type="button" class="next"><small>Next layer &rsaquo;</small><span></span></button>';
+    function neighbours() { var i = order.indexOf(it.id); return [order[(i - 1 + order.length) % order.length], order[(i + 1) % order.length]]; }
+    function refresh() { var n = neighbours(); $('.prev span', nav).textContent = BY_ID[n[0]].title; $('.next span', nav).textContent = BY_ID[n[1]].title; }
+    $('.prev', nav).addEventListener('click', function () { refresh(); var n = neighbours(); openDirect(n[0]); });
+    $('.next', nav).addEventListener('click', function () { refresh(); var n = neighbours(); openDirect(n[1]); });
+    nav.addEventListener('mouseenter', refresh); nav.addEventListener('focusin', refresh); refresh();
+    slot.parentNode.replaceChild(nav, slot);
+
+    var wrap = document.createElement('div'); wrap.className = 'comment-box';
+    wrap.innerHTML = '<div class="comment-box-label">Notes <span>(optional)</span></div><textarea class="comment-box-input" placeholder="Add a note about this issue — what worked, site specifics, who to contact..."></textarea><div class="comment-box-status">&nbsp;</div>';
+    nav.parentNode.insertBefore(wrap, nav);
+    var ta = $('textarea', wrap), st = $('.comment-box-status', wrap), t;
+    if (window.STW) ta.value = STW.getComment(PAGE_KEY, it.id);
+    ta.addEventListener('input', function () {
+      clearTimeout(t);
+      t = setTimeout(function () { if (window.STW) STW.setComment(PAGE_KEY, it.id, ta.value); st.textContent = 'Saved'; setTimeout(function () { st.textContent = ' '; }, 1500); }, 500);
+    });
+  });
+  function openDirect(id) { history.pushState(null, '', location.pathname + location.search + '#' + id); route(false); }
+
+  /* ---------- Stories-style demo clips ---------- */
+  var BEAT_MS = 2600, clipState = null;
+  function buildClips() {
+    $$('.clip-slot').forEach(function (slot) {
+      var it = BY_ID[slot.dataset.clip], n = it.beats.length;
+      var c = document.createElement('div'); c.className = 'clip'; c.dataset.id = it.id; c.style.setProperty('--arn', it.ar.toFixed(4));
+      var media = it.video
+        ? '<video muted loop playsinline preload="metadata" poster="' + it.img + '"><source src="' + it.video + '" type="video/mp4"></video>'
+        : '<img src="' + it.img + '" alt="">';
+      c.innerHTML =
+        '<div class="clip-bars">' + it.beats.map(function () { return '<i></i>'; }).join('') + '</div>' +
+        '<div class="clip-media">' + media + '<div class="spot"></div><div class="sweep"></div></div>' +
+        '<div class="clip-cap"><span class="n">1</span><span class="t"></span></div>' +
+        '<button type="button" class="clip-zone l" aria-label="Previous step"></button><button type="button" class="clip-zone r" aria-label="Next step"></button>' +
+        '<button type="button" class="clip-ctl" aria-label="Pause or play the demo"><svg viewBox="0 0 12 12"><rect x="2" y="1" width="3" height="10"/><rect x="7" y="1" width="3" height="10"/></svg></button>';
+      slot.parentNode.replaceChild(c, slot);
+      c.querySelector('.clip-zone.l').addEventListener('click', function () { go(c, -1); });
+      c.querySelector('.clip-zone.r').addEventListener('click', function () { go(c, 1); });
+      c.querySelector('.clip-ctl').addEventListener('click', function () { togglePause(c); });
+    });
+  }
+  function showBeat(c, i) {
+    var it = BY_ID[c.dataset.id], b = it.beats[i], n = it.beats.length;
+    c._i = i;
+    $$('.clip-bars i', c).forEach(function (bar, k) { bar.className = k < i ? 'done' : (k === i ? 'cur' : ''); });
+    c.style.setProperty('--beat', (BEAT_MS / 1000) + 's');
+    var spot = $('.spot', c), sweep = $('.sweep', c);
+    if (b.box) {
+      spot.style.left = b.box[0] + '%'; spot.style.top = b.box[1] + '%'; spot.style.width = b.box[2] + '%'; spot.style.height = b.box[3] + '%';
+      spot.classList.add('on'); sweep.classList.remove('on');
+    } else { spot.classList.remove('on'); sweep.classList.add('on'); }
+    $('.n', c).textContent = String(i + 1);
+    var t = $('.t', c); t.style.animation = 'none'; void t.offsetWidth; t.style.animation = ''; t.textContent = b.t;
+  }
+  function go(c, d) {
+    var it = BY_ID[c.dataset.id], n = it.beats.length;
+    var i = (c._i + d + n) % n;
+    showBeat(c, i); schedule(c);
+  }
+  function schedule(c) {
+    clearTimeout(c._timer);
+    if (c.classList.contains('paused')) return;
+    c._timer = setTimeout(function () { go(c, 1); }, BEAT_MS);
+  }
+  function togglePause(c) {
+    c.classList.toggle('paused');
+    var v = $('video', c);
+    if (c.classList.contains('paused')) { clearTimeout(c._timer); if (v) v.pause(); }
+    else { if (v) v.play(); showBeat(c, c._i); schedule(c); }
+  }
+  function startClip(id) {
+    var c = $('.clip[data-id="' + id + '"]'); if (!c) return;
+    clipState = c; c.classList.remove('paused');
+    var v = $('video', c); if (v) { try { v.currentTime = 0; var p = v.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
+    showBeat(c, 0); schedule(c);
+    if (reduce) { c.classList.add('paused'); clearTimeout(c._timer); }
+  }
+  function stopClips() {
+    $$('.clip').forEach(function (c) { clearTimeout(c._timer); var v = $('video', c); if (v) v.pause(); });
+    clipState = null;
+  }
+  buildClips();
+  document.addEventListener('visibilitychange', function () {
+    if (!clipState) return;
+    if (document.hidden) { clearTimeout(clipState._timer); var v = $('video', clipState); if (v) v.pause(); }
+    else if (!clipState.classList.contains('paused')) { var v2 = $('video', clipState); if (v2) v2.play(); schedule(clipState); }
+  });
+
+  /* ---------- intro ---------- */
+  var intro = $('#intro'), introTimer = null;
+  function endIntro() {
+    clearTimeout(introTimer);
+    intro.classList.add('out');
+    setTimeout(function () { intro.hidden = true; }, 800);
+    bootStack();
+  }
+  function bootStack() {
+    layout();
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        order.forEach(function (id, i) { layerEls[id].style.transitionDelay = (i * 90) + 'ms'; });
+        stack.classList.remove('pre'); layout();
+        order.forEach(function (id, i) { layerEls[id].style.transitionDelay = (i * 90) + 'ms'; });
+        setTimeout(function () { order.forEach(function (id) { layerEls[id].style.transitionDelay = '0ms'; }); }, 1400);
+      });
+    });
+  }
+  function playIntro() {
+    if (reduce) { intro.hidden = true; stack.classList.remove('pre'); layout(); return; }
+    intro.hidden = false; intro.classList.remove('out');
+    /* restart the CSS animations */
+    var clone = intro.cloneNode(true); intro.parentNode.replaceChild(clone, intro); intro = clone;
+    $('#introSkip', intro).addEventListener('click', endIntro);
+    intro.addEventListener('click', endIntro);
+    stack.classList.add('pre'); layout();
+    introTimer = setTimeout(endIntro, 3500);
+  }
+  $('#replayIntro').addEventListener('click', function () { if (current) surface(); window.scrollTo(0, 0); playIntro(); });
+  intro.addEventListener('click', endIntro);
+  $('#introSkip').addEventListener('click', function (e) { e.stopPropagation(); endIntro(); });
+  document.addEventListener('keydown', function (e) { if (!intro.hidden && !intro.classList.contains('out') && (e.key === 'Escape' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); endIntro(); } });
+
+  /* ---------- start ---------- */
+  buildRail(); layout();
+  var seen = false; try { seen = sessionStorage.getItem('hs_intro_seen') === '1'; } catch (e) {}
+  var startHash = (location.hash || '').replace('#', '');
+  if (startHash && BY_ID[startHash]) {
+    intro.hidden = true; stack.classList.remove('pre'); route(false);
+  } else if (seen || reduce) {
+    intro.hidden = true; stack.classList.remove('pre'); layout();
+  } else {
+    try { sessionStorage.setItem('hs_intro_seen', '1'); } catch (e) {}
+    introTimer = setTimeout(endIntro, 3500);
+  }
+
+  if (window.SupportRequest) SupportRequest.init({ pageKey: PAGE_KEY, titles: STEP_TITLES });
+
+  /* "Scan a photo": the client photographs the handset or screenshots the error and the AI picks the card.
+     TRIAGE_ENDPOINT = '' runs DEMO MODE (no AI, works on any static host such as git).
+     When the triage server is live, set it to e.g. 'https://help.yourcompany.com/triage' (see triage-server/README.md). */
+  var SIGNS = {
+      "handset-screensaver": "The handset screen is blank, dark or showing a screensaver or clock, as if asleep. No error text.",
+      "handset-blue-info": "A blue screen titled \"Floorsight Handset\" listing hardware, boot and build version, with a small X in the top-left corner, instead of the normal home screen.",
+      "handset-bootloader": "A screen listing hardware, application and radio details with a \"Reboot\" button, instead of the handset starting up.",
+      "handset-x-screen": "The handset screen shows a single large white X (the handset is disconnected or not configured).",
+      "handset-power-on": "The handset screen shows the words \"Power On\" (often with a spinner) and stays there; the buttons do not respond.",
+      "handset-diagnostics": "Not a photo of a handset: a screenshot of the Floorsense admin portal, such as a floor plan with pale or grey desk icons (offline pucks) or an Offline Desks report."
+  };
+  var TRIAGE_ENDPOINT = '';
+  if (window.PhotoTriage) PhotoTriage.init({
+    endpoint: TRIAGE_ENDPOINT, scope: 'handset', pageKey: PAGE_KEY,
+    /* signs = what the screen looks like. Used only when an admin connects their own AI key (no server).
+       Keep in step with triage-server/catalogue.js. */
+    cards: ISSUES.map(function (i) { return { id: i.id, title: i.title, hint: i.desc, signs: SIGNS[i.id] || '' }; }),
+    onOpenCard: function (id) { navigate(id); }
+  });
+})();
+</script>
+</body>
+</html>

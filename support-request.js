@@ -30,6 +30,10 @@
       name: 'Desk Booking System (Floorsense)', short: 'Floorsense Desk',
       extra: ['Desk number(s) affected:', 'Handset / puck / sensor details (if known):']
     },
+    Handset: {
+      name: 'Desk Booking System (Floorsense)', short: 'Floorsense Handset',
+      extra: ['Desk number(s) affected:', 'What the handset screen shows:', 'Handset / puck serial number (if known):']
+    },
     MeetingRoom: {
       name: 'Meeting Room Booking System (Floorsense)', short: 'Floorsense Meeting Room',
       extra: ['Room name(s) affected:', 'Room panel / display details (if known):']
@@ -125,6 +129,12 @@
     if (extra.length) { L.push('ISSUE DETAILS'); extra.forEach(function (x) { L.push(x + ' '); }); L.push(''); }
     L.push('EXPECTED BEHAVIOUR', '[What should happen]', '');
     L.push('ACTUAL BEHAVIOUR', '[What actually happens, including any error message]', '');
+    var pt = global.PhotoTriage && global.PhotoTriage.last;
+    if (pt && pt.cardId === id) {
+      L.push('PHOTO ANALYSIS', 'The client scanned a photo or screenshot. ' + (pt.byAI ? 'Automatic analysis: looks like "' + pt.title + '"' + (pt.confidence != null ? ' (' + Math.round(pt.confidence * 100) + '% confidence)' : '') + ', confirmed by the client.' : 'The client chose "' + pt.title + '" from the list.'));
+      if (pt.readText) L.push('Text read from the picture: ' + pt.readText);
+      L.push('[Please attach the photo or screenshot to this email]', '');
+    }
     L.push('STEPS PERFORMED', stepsBlock(), '');
     L.push('ADDITIONAL COMMENTS', notes || '[Anything that helps us recreate the issue. Please attach screenshots or photos if you can.]', '');
     L.push('Thank you');

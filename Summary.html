@@ -332,6 +332,17 @@
             }
         },
         {
+            key: 'Handset', name: 'Handset Troubleshooting (layered)', badge: 'badge-amber', badgeText: 'Floorsense',
+            issues: {
+                'handset-screensaver': 'Screen Saver / Inactive Display',
+                'handset-blue-info': 'Stuck on the Blue Info Screen',
+                'handset-bootloader': 'Stuck on the Bootloader Screen',
+                'handset-x-screen': 'Stuck on an "X" Screen',
+                'handset-power-on': 'Stuck on the "Power On" Screen',
+                'handset-diagnostics': 'Handset Diagnostics'
+            }
+        },
+        {
             key: 'MeetingRoom', name: 'Meeting Room Booking System (Floorsense)', badge: 'badge-amber', badgeText: 'Floorsense',
             issues: {
                 'tablet-unresponsive': 'Tablet Unresponsive / Blank Screen',
@@ -342,7 +353,7 @@
             }
         }
     ];
-    const PAGE_NAMES = { Locker: 'Locker (Smartalock)', Desk: 'Desk (Floorsense)', MeetingRoom: 'Meeting Room (Floorsense)', MobileApp: 'Mobile App (end users)', Hub: 'Troubleshooting Hub', Summary: 'Summary page' };
+    const PAGE_NAMES = { Locker: 'Locker (Smartalock)', Desk: 'Desk (Floorsense)', MeetingRoom: 'Meeting Room (Floorsense)', MobileApp: 'Mobile App (end users)', Handset: 'Handset (layered page)', Hub: 'Troubleshooting Hub', Summary: 'Summary page' };
 
     function issueTitle(page, step) {
         const sys = SYSTEMS.find(function (s) { return s.key === page; });
