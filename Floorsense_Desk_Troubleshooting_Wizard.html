@@ -445,6 +445,14 @@
             <h3>Stuck on an "X" Screen</h3>
             <div class="dcard-sub">Large white X — handset is disconnected or not configured.</div>
           </button>
+          <button type="button" class="dcard" data-sub-issue="handset-power-on" onclick="goToStep('handset-power-on')">
+            <div class="dcard-top">
+              <div class="dcard-icon"><img src="images/handset-power-on-screen.png" alt=""></div>
+              <span class="badge-pill badge-blue">Peripheral</span>
+            </div>
+            <h3>Stuck on the &ldquo;Power On&rdquo; Screen</h3>
+            <div class="dcard-sub">Stays on &ldquo;Power On&rdquo; and the controls don&rsquo;t respond, even after reconnecting the power.</div>
+          </button>
         </div>
 
         <div class="preview-panel" id="previewPanelSub" role="button" tabindex="0" aria-label="Example image preview. Hover a screen state above to preview it, or activate to open the issue currently shown.">
@@ -595,6 +603,59 @@
 
         <div class="page-nav">
           <button type="button" class="page-nav-btn" onclick="goToStep('handset-bootloader')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
+            Previous issue
+          </button>
+          <button type="button" class="page-nav-btn next" onclick="goToStep('handset-power-on')">
+            <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></span>
+            Next issue
+          </button>
+        </div>
+      </div>
+
+      <!-- ISSUE 2e: STUCK ON THE "POWER ON" SCREEN -->
+      <div id="step-handset-power-on" class="wizard-step handset-detail-step">
+        <a href="#" class="crumb-link" onclick="goToStep('handset-error');return false;">&larr; Handset/Display Screen Issues</a>
+
+        <div class="example-figure compact">
+            <img src="images/handset-power-on-screen.png" alt="Floorsense handset showing a Power On screen with a startup icon and its controls unresponsive">
+            <div class="caption">The handset stays on the &ldquo;Power On&rdquo; screen.</div>
+        </div>
+        <div class="callout callout-warning">
+            <strong>Symptom:</strong> The handset is stuck on the &ldquo;Power On&rdquo; screen and its controls (up and down arrows and the card button) are unresponsive, even though the cables under the desk look connected and the power cable has been disconnected and reconnected.
+        </div>
+        <ul class="check-list">
+            <li class="check-item">
+                <input type="checkbox" id="hp-1">
+                <label for="hp-1"><strong>Check the cables:</strong> Make sure all the cables under the desk are firmly connected to the handset.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="hp-2">
+                <label for="hp-2"><strong>Power cycle:</strong> Disconnect the power jack from the back of the handset, wait a few seconds, then plug it back in and wait for it to restart.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+            <li class="check-item">
+                <input type="checkbox" id="hp-3">
+                <label for="hp-3"><strong>Resolution &mdash; Replacement required:</strong> If the handset is still stuck on the &ldquo;Power On&rdquo; screen and the controls still don&rsquo;t respond, the handset is faulty and needs to be replaced.</label>
+                <span class="check-status">&check; Checked</span>
+            </li>
+        </ul>
+        <div class="example-figure compact">
+            <img src="images/handset-power-jack.png" alt="Close-up of the round power jack and cable that plugs into the back of the handset">
+            <div class="caption">The power jack connects to the back of the handset.</div>
+        </div>
+
+        <div class="callout callout-success">
+            <strong>Expected Result:</strong> A replacement handset powers on and shows its normal home screen with the desk number.
+        </div>
+
+        <div class="callout callout-danger">
+            <strong>Escalation Criteria:</strong> To arrange a replacement, tap the <strong>Contact support</strong> button below and include the site name, the desk number, and a photo of the handset screen.
+        </div>
+
+        <div class="page-nav">
+          <button type="button" class="page-nav-btn" onclick="goToStep('handset-x-screen')">
             <span class="page-nav-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg></span>
             Previous issue
           </button>
@@ -1280,6 +1341,7 @@
         'handset-blue-info': { title: 'Stuck on the Blue Info Screen', sub: 'Match this against the blue info screen, then follow the fix below.' },
         'handset-bootloader': { title: 'Stuck on the Bootloader Screen', sub: 'Match this against the bootloader screen, then follow the fix below.' },
         'handset-x-screen': { title: 'Stuck on an "X" Screen', sub: 'Match this against the "X" screen, then follow the fix below.' },
+        'handset-power-on': { title: 'Stuck on the "Power On" Screen', sub: 'The handset stays on the "Power On" screen and its controls are unresponsive.' },
         'motion-sensor': { title: 'Motion Sensor Diagnostics', sub: 'Check desk occupancy data to identify malfunctioning sensors, using either the Floorplan Heatmap or the Desks Motion Sensor Readings Report below.' },
         'handset-diagnostics': { title: 'Handset Diagnostics', sub: 'The admin portal also provides reports for identifying and diagnosing offline or malfunctioning pucks, with detailed status, performance and historical data.' },
         'mobile-app': { title: 'Mobile App Issues', sub: 'Select what you\'re seeing in the Floorsense mobile app to see its fix.' },
@@ -1467,14 +1529,16 @@
         'handset-screensaver': { title: 'Screen Saver / Inactive Display', image: 'images/handset-reboot-demo-poster.png', alt: 'Floorsense handset screen saver, prompting a tap to wake it and return to the home screen' },
         'handset-blue-info': { title: 'Stuck on the Blue Info Screen', image: 'images/handset-blue-info-screen.png', alt: 'Floorsense handset showing the blue Floorsight Handset info screen' },
         'handset-bootloader': { title: 'Stuck on the Bootloader Screen', image: 'images/handset-bootloader-reboot.png', alt: 'Floorsense handset bootloader screen with the Reboot option highlighted in a red box' },
+        'handset-power-on': { title: 'Stuck on the "Power On" Screen', image: 'images/handset-power-on-screen.png', alt: 'Floorsense handset stuck on the Power On screen with unresponsive controls' },
         'handset-x-screen': { title: 'Stuck on an "X" Screen', image: 'images/handset-x-screen.png', alt: 'Floorsense handset showing a large white X on its screen' }
     };
-    const SUB_ROTATION_ORDER = ['handset-screensaver', 'handset-blue-info', 'handset-bootloader', 'handset-x-screen'];
+    const SUB_ROTATION_ORDER = ['handset-screensaver', 'handset-blue-info', 'handset-bootloader', 'handset-x-screen', 'handset-power-on'];
     const ALL_SUB_ISSUE_TITLES = {
         'handset-screensaver': 'Screen Saver / Inactive Display',
         'handset-blue-info': 'Stuck on the Blue Info Screen',
         'handset-bootloader': 'Stuck on the Bootloader Screen',
-        'handset-x-screen': 'Stuck on an "X" Screen'
+        'handset-x-screen': 'Stuck on an "X" Screen',
+        'handset-power-on': 'Stuck on the "Power On" Screen'
     };
 
     const previewPanelSub = document.getElementById('previewPanelSub');
